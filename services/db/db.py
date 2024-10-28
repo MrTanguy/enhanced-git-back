@@ -5,7 +5,7 @@ from sqlalchemy import create_engine, select
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
-from models.User import User
+from models.user import User
 
 
 class DB:
@@ -25,10 +25,11 @@ class DB:
             self.database = os.getenv("BDD_NAME")
             self.user = os.getenv("BDD_USER")
             self.password = os.getenv("BDD_PSWD")
+            
+            self.pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
             self.connection_string = f"mysql+mysqlconnector://{self.user}:{self.password}@{self.host}/{self.database}"
             self.engine = create_engine(self.connection_string)
             self.Session = sessionmaker(bind=self.engine)
-            self.pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
     def get_connection(self):
         """Retourne une nouvelle session SQLAlchemy."""

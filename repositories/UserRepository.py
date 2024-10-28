@@ -3,7 +3,7 @@ import logging
 from sqlalchemy import select, delete, update
 from sqlalchemy.exc import NoResultFound
 
-from models.User import User
+from models.user import User
 from services.db.db import DB
 
 
