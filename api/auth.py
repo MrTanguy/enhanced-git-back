@@ -19,6 +19,7 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
     user = UserRepository().login(username=username, password=password)
     if user:
         logging.info(user.username)
+        return user
     else:
         raise HTTPException(status_code=401, detail="Invalid credentials")
 

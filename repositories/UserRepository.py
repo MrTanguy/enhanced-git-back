@@ -1,5 +1,6 @@
 import logging
 
+from fastapi import HTTPException, status
 from sqlalchemy import select, delete, update
 from sqlalchemy.exc import NoResultFound
 
@@ -59,10 +60,10 @@ class UserRepository:
                     return db_user
                 else:
                     return None
-
             except NoResultFound:
-                logging.info("Aucun résultat trouvé")
                 return None
             except Exception as e:
-                logging.error(f"Erreur lors de la récupération de l'utilisateur: {e}")
-                return None
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail="Internal server error"
+                )
