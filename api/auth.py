@@ -22,13 +22,12 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
         if user:
             logging.info(user.username)
             return user
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, 
-            detail="Invalid credentials"
-        )
+    # The user and/or password don't match the regex
+    # The username isn't find in the DB
+    # The password is incorrect
     raise HTTPException(
-        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-        detail="Please enter a valid email address and a strong password"
+        status_code=status.HTTP_401_UNAUTHORIZED, 
+        detail="Invalid credentials"
     )
 
 
@@ -43,7 +42,7 @@ async def register(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
         if user:
             return user
     raise HTTPException(
-        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Please enter a valid email address and a strong password"
     )
     

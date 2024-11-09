@@ -66,18 +66,11 @@ class UserRepository:
             )
         
     def read_by_username(self, username: str) -> User:
-        try:
-            with self.db_connection.get_connection() as session:
-                cmd = select(User).filter_by(username=username)
-                user = session.execute(cmd).scalar_one_or_none()
-                if user:
-                    return user
-        except Exception as e:
-            logging.exception(e)
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Internal server error."
-            )
+        with self.db_connection.get_connection() as session:
+            cmd = select(User).filter_by(username=username)
+            user = session.execute(cmd).scalar_one_or_none()
+            if user:
+                return user
 
     def login(self, username: str, password: str) -> User:
         """
@@ -92,14 +85,11 @@ class UserRepository:
             logging.info(f"Username : {username}")
             db_user = self.read_by_username(username=username)
 
-            if self.db_connection.pwd_context.verify(password, db_user.password):
+            # If we have a user and the password is correct
+            if db_user and self.db_connection.pwd_context.verify(password, db_user.password):
                 return db_user
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid credentials"
-            )
-        except HTTPException:
-            raise
+            # None in any other cases
+        # Error with the DB
         except Exception as e:
             logging.exception(e)
             raise HTTPException(
