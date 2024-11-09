@@ -18,6 +18,7 @@ services:
       - "8080:8080"
 
   api:
+    restart: always
     build:
       dockerfile: Dockerfile
       context: .  # Assure-toi d'avoir le bon contexte de build
@@ -25,8 +26,6 @@ services:
       - db
     ports:
       - "8000:8000"
-    environment:
-      DATABASE_URL: "mysql+pymysql://root:${ROOT_PASSWORD}@db:3306/enhanced_git_test"
     volumes:
       - .:/app  # Monte le dossier local de l’application
       - ./cert:/app/cert  # Monte le dossier des certificats pour SSL

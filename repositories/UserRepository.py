@@ -21,15 +21,23 @@ class UserRepository:
             session.commit()
             return new_user
 
-    def read(self, _id: int) -> User:
+    def read_by_id(self, _id: int) -> User:
         with self.db_connection.get_connection() as session:
             cmd = select(User).filter_by(id=_id)
             user_row = session.execute(cmd)
             user = user_row.scalar_one_or_none()
             if user:
                 return user
-            else:
-                raise ValueError(f"User with id {_id} not found")
+            raise ValueError(f"User with id {_id} not found")
+        
+    def read_by_username(self, username: str) -> User:
+        with self.db_connection.get_connection() as session:
+            cmd = select(User).filter_by(username=username)
+            user_row = session.execute(cmd)
+            user = user_row.scalar_one_or_none()
+            if user:
+                return user
+            raise ValueError(f"User with username {username} not found")
 
     def update(self, user: User):
         """Met à jour un utilisateur existant."""
@@ -50,20 +58,19 @@ class UserRepository:
 
     def login(self, username: str, password: str):
         """Récupère un utilisateur par nom d'utilisateur et vérifie le mot de passe."""
-        with self.db_connection.get_connection() as session:
-            try:
-                logging.info(f"Tentative de connexion pour l'utilisateur : {username}")
-                stmt = select(User).filter_by(username=username)
-                db_user = session.execute(stmt).scalar_one()
+        try:
+            logging.info(f"Tentative de connexion pour l'utilisateur : {username}")
+            db_user = self.read_by_username(username=username)
 
-                if self.db_connection.pwd_context.verify(password, db_user.password):
-                    return db_user
-                else:
-                    return None
-            except NoResultFound:
+            if self.db_connection.pwd_context.verify(password, db_user.password):
+                return db_user
+            else:
                 return None
-            except Exception as e:
-                raise HTTPException(
-                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                    detail="Internal server error"
-                )
+        except NoResultFound:
+            return None
+        except Exception as e:
+            logging.exception(e)
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Internal server error"
+            )
