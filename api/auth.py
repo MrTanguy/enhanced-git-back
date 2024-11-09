@@ -13,10 +13,11 @@ auth_router = APIRouter()
 
 @auth_router.post("/token")
 async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
+
     username = form_data.username
     password = form_data.password
 
-    if is_username_valid(username) and is_password_valid(password):
+    if is_username_valid(username=username) and is_password_valid(password=password):
         user = UserRepository().login(username=username, password=password)
         if user:
             logging.info(user.username)
@@ -27,7 +28,7 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
         )
     raise HTTPException(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-        detail="Please enter a valid email and a strong password"
+        detail="Please enter a valid email address and a strong password"
     )
 
 
@@ -37,7 +38,12 @@ async def register(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
     username = form_data.username
     password = form_data.password
 
-    user = UserRepository().create(username=username, password=password)
-    logging.info(user.id)
-    logging.info(user.username)
+    if is_username_valid(username=username) and is_password_valid(password=password):
+        user = UserRepository().create(username=username, password=password)
+        if user:
+            return user
+    raise HTTPException(
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        detail="Please enter a valid email address and a strong password"
+    )
     
