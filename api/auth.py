@@ -6,6 +6,8 @@ from fastapi import APIRouter, HTTPException,  Depends, status
 from fastapi.security import OAuth2PasswordRequestForm
 
 from repositories.UserRepository import UserRepository
+from services.security.bearer import Bearer
+from services.security.refresh import Refresh
 from utils.utils import is_username_valid, is_password_valid
 
 auth_router = APIRouter()
@@ -20,8 +22,9 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
     if is_username_valid(username=username) and is_password_valid(password=password):
         user = UserRepository().login(username=username, password=password)
         if user:
-            logging.info(user.username)
-            return user
+            bearer = Bearer().generate(_id=user.id)
+            refresh = Refresh().generate(_id=user.id)
+            return {"bearer": bearer, "refresh": refresh}
     # The user and/or password don't match the regex
     # The username isn't find in the DB
     # The password is incorrect
@@ -46,3 +49,8 @@ async def register(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
         detail="Please enter a valid email address and a strong password"
     )
     
+
+@auth_router.get("/test")
+async def test(token: Annotated[str, Depends(Bearer().oauth2_scheme)]):
+    test = Bearer().verify(token=token)
+    return {"token": test}
