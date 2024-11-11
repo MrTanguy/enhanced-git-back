@@ -16,7 +16,7 @@ class Bearer:
         payload = {
             "id": _id,
             "type": "bearer",
-            "exp": datetime.datetime.now() - datetime.timedelta(hours=1)
+            "exp": datetime.datetime.now() + datetime.timedelta(hours=1)
         }
 
         token = encode(payload, self.SECURITY_TOKEN, algorithm="HS256")

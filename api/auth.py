@@ -15,6 +15,13 @@ auth_router = APIRouter()
 
 @auth_router.post("/token")
 async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
+    """
+    Authenticate the user
+
+    :param form_data: The data's user (x-www-form-urlencoded)
+
+    :return: # TODO : Que renvoie cette fonction ? 
+    """
 
     username = form_data.username
     password = form_data.password
@@ -32,6 +39,12 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
         status_code=status.HTTP_401_UNAUTHORIZED, 
         detail="Invalid credentials"
     )
+
+@auth_router.post("/refresh")
+async def refresh():
+    pass
+
+
 
 
 @auth_router.post("/register")

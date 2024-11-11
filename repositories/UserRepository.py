@@ -48,24 +48,31 @@ class UserRepository:
     # Read #
     ########
     def read_by_id(self, _id: int) -> User:
-        try:
-            with self.db_connection.get_connection() as session:
-                cmd = select(User).filter_by(id=_id)
-                user = session.execute(cmd).scalar_one_or_none()
-                if user:
-                    return user
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail=f"Utilisateur avec l'id {_id} non trouvé"
-                )
-        except Exception as e:
-            logging.exception(e)
+        """
+        Try to find the user in DB according to his id
+
+        :param _id: the id to find
+
+        :return: the User
+        """
+        with self.db_connection.get_connection() as session:
+            cmd = select(User).filter_by(id=_id)
+            user = session.execute(cmd).scalar_one_or_none()
+            if user:
+                return user
             raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Internal server error."
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Utilisateur avec l'id {_id} non trouvé"
             )
         
     def read_by_username(self, username: str) -> User:
+        """
+        Try to find the user in DB according to his username
+
+        :param username: the email address to find
+
+        :return: the User or None
+        """
         with self.db_connection.get_connection() as session:
             cmd = select(User).filter_by(username=username)
             user = session.execute(cmd).scalar_one_or_none()
