@@ -63,6 +63,14 @@ async def register(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
     )
     
 
+@auth_router.get("/refresh")
+async def refresh(token: Annotated[str, Depends(Bearer().oauth2_scheme)]):
+    id = Refresh().verify(token=token)
+    if id:
+        bearer = Bearer().generate(_id=id)
+        return {"bearer": bearer}
+    
+
 @auth_router.get("/test")
 async def test(token: Annotated[str, Depends(Bearer().oauth2_scheme)]):
     test = Bearer().verify(token=token)

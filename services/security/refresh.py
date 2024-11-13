@@ -16,7 +16,7 @@ class Refresh:
         payload = {
             "id": _id,
             "type": "refresh",
-            "exp": datetime.datetime.now() - datetime.timedelta(days=7)
+            "exp": datetime.datetime.now() + datetime.timedelta(days=7)
         }
 
         token = encode(payload, self.SECURITY_TOKEN, algorithm="HS256")
@@ -25,7 +25,7 @@ class Refresh:
     def verify(self, token: str):
         try:
             payload = decode(token, self.SECURITY_TOKEN, algorithms=["HS256"])
-            return payload
+            return payload["id"]
         except ExpiredSignatureError:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
