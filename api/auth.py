@@ -40,13 +40,6 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
         detail="Invalid credentials"
     )
 
-@auth_router.post("/refresh")
-async def refresh():
-    pass
-
-
-
-
 @auth_router.post("/register")
 async def register(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
 
