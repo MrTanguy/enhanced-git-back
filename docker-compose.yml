@@ -8,8 +8,13 @@ services:
       MYSQL_ROOT_PASSWORD: ${ROOT_PASSWORD}
     volumes:
       - db_volume:/var/lib/mysql
-    ports:
-      - "3306:3306"
+    expose:
+      - "3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
   adminer:
     image: adminer
@@ -23,7 +28,8 @@ services:
       dockerfile: Dockerfile
       context: .  # Assure-toi d'avoir le bon contexte de build
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     ports:
       - "8000:8000"
     volumes:
