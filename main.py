@@ -10,8 +10,7 @@ app = FastAPI()
 app.include_router(router=auth_router, prefix="/auth")
 
 origins = [
-    "http://localhost:4321",   # Autoriser React en développement
-    "https://localhost:4321"   # Autoriser React en HTTPS
+    "https://localhost:5173"   # Autoriser React en HTTPS
 ]
 
 # Ajouter le middleware CORS
