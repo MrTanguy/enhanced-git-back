@@ -82,9 +82,8 @@ async def register(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], r
 async def refresh(token: Annotated[str, Depends(Bearer().oauth2_scheme)]):
     id = Refresh().verify(token=token)
     if id:
-        bearer = Bearer().generate(_id=id)
-        refresh = Refresh().generate(_id=id)
-        return {"bearer": bearer, "refresh": refresh}
+        bearer = Bearer().generate(_id=id) 
+        return {"bearer": bearer}
     raise HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED, 
         detail="Invalid or expired refresh token"
