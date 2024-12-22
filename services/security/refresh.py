@@ -1,5 +1,4 @@
 import datetime
-import logging
 from dotenv import load_dotenv
 from os import getenv
 from fastapi import HTTPException, status

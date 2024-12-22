@@ -1,8 +1,10 @@
+import os
 import logging
 
 from typing import Annotated
+from dotenv import load_dotenv
 
-from fastapi import APIRouter, HTTPException,  Depends, status, Response, Cookie
+from fastapi import APIRouter, HTTPException,  Depends, status, Response, Cookie, Request
 from fastapi.security import OAuth2PasswordRequestForm
 
 from repositories.UserRepository import UserRepository
@@ -11,16 +13,18 @@ from services.security.refresh import Refresh
 from utils.utils import is_username_valid, is_password_valid
 
 auth_router = APIRouter()
+load_dotenv()
 
 
 @auth_router.post("/token")
 async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], response: Response):
     """
-    Authenticate the user and return access and refresh tokens.
+    Authenticate the user and return bearer and refresh tokens.
 
     :param form_data: The data's user (x-www-form-urlencoded)
+    :param response: The http response
 
-    :return: # TODO : Que renvoie cette fonction ? 
+    :return: A bearer token and a refresh token in HttpOnly cookie
     """
 
     username = form_data.username
@@ -52,6 +56,14 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], resp
 
 @auth_router.post("/register")
 async def register(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], response: Response):
+    """
+    Register the user and return bearer and refresh tokens.
+
+    :param form_data: The data's user (x-www-form-urlencoded)
+    :param response: The http response
+
+    :return: A bearer token and a refresh token in HttpOnly cookie
+    """
 
     username = form_data.username
     password = form_data.password
@@ -79,13 +91,28 @@ async def register(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], r
     
 
 @auth_router.get("/refresh")
-async def refresh(token: Annotated[str, Depends(Bearer().oauth2_scheme)]):
-    id = Refresh().verify(token=token)
+async def refresh(request: Request):
+    """
+    Send back a new bearer token
+
+    :param request: the http request used to get the refresh token in HttpOnly
+
+    :return: A bearer token
+    """
+
+    refresh_token = request.cookies.get("refresh")
+    if not refresh_token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Refresh token is missing"
+        )
+
+    id = Refresh().verify(token=refresh_token)
     if id:
-        bearer = Bearer().generate(_id=id) 
+        bearer = Bearer().generate(_id=id)
         return {"bearer": bearer}
+
     raise HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED, 
+        status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Invalid or expired refresh token"
     )
-    
