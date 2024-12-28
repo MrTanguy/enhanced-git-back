@@ -1,0 +1,40 @@
+version: '3.9'
+
+services:
+  db:
+    image: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${ROOT_PASSWORD}
+    volumes:
+      - db_volume:/var/lib/mysql
+    expose:
+      - "3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - "8080:8080"
+
+  api:
+    restart: always
+    build:
+      dockerfile: Dockerfile
+      context: .  # Assure-toi d'avoir le bon contexte de build
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app  # Monte le dossier local de l’application
+      - ./cert:/app/cert  # Monte le dossier des certificats pour SSL
+
+volumes:
+  db_volume:
