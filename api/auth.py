@@ -41,7 +41,7 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], resp
                 value=refresh,
                 httponly=True,
                 secure=True,
-                samesite="Strict",
+                samesite="None",
                 max_age=604800
             )
 
@@ -79,7 +79,7 @@ async def register(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], r
                 value=refresh,
                 httponly=True,
                 secure=True,
-                samesite="Strict",
+                samesite="None",
                 max_age=604800
             )
 
@@ -116,3 +116,18 @@ async def refresh(request: Request):
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Invalid or expired refresh token"
     )
+
+
+@auth_router.get("/oauthurl")
+async def get_oauthurl(token: Annotated[str, Depends(Bearer().oauth2_scheme)], website: str):
+    
+    test = Bearer().verify(token=token)
+    if test:
+        if website == 'github':
+            client_id = os.getenv("GITHUB_CLIENT")
+            url_callback = os.getenv("GITHUB_CALLBACK")
+            return f"https://github.com/login/oauth/authorize?client_id={client_id}&redirect_uri={url_callback}&scope=user"
+        elif website == 'gitlab':
+            pass
+        else:
+            pass
