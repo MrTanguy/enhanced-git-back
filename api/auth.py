@@ -2,9 +2,8 @@ import logging
 
 from typing import Annotated
 from dotenv import load_dotenv
-
-from fastapi import APIRouter, HTTPException, Depends, status, Response, Request, Form
 from fastapi.security import OAuth2PasswordRequestForm
+from fastapi import APIRouter, HTTPException, Depends, status, Response, Request, Form
 
 from repositories.UserRepository import UserRepository
 from repositories.ConnectionRepository import ConnectionRepository
@@ -112,73 +111,3 @@ async def refresh(request: Request):
     id = Refresh().verify(token=refresh_token)
     bearer = Bearer().generate(_id=id)
     return {"bearer": bearer}
-
-
-@auth_router.get("/oauthurl")
-async def get_oauthurl(token: Annotated[str, Depends(Bearer().oauth2_scheme)], website: str):
-    """
-    Send back the oauth url depending the website asked
-
-    :param token: Bearer token
-    :param website: website asked
-
-    :return: an url
-    """
-    Bearer().verify(token=token)
-    service = init_website_service(website=website)
-    return service.getOauthUrl()
-
-
-@auth_router.post("/oauthtoken")
-async def get_oauthtoken(token: Annotated[str, Depends(Bearer().oauth2_scheme)], code: Annotated[str, Form()], website: Annotated[str, Form()]):
-    try:
-        id = Bearer().verify(token=token)['id']
-
-        service = init_website_service(website=website)
-        access_token = service.getAccessToken(code=code)
-        
-        user_info = service.getUserInfo(access_token=access_token)
-        account_id = user_info['id']
-        
-        ConnectionRepository().create(id=id, website=website, access_token=access_token, account_id=account_id, service=service)
-        
-        return {"message": "Successfully connected."}
-
-    except HTTPException:
-        raise
-    except Exception as e:
-        logging.exception(e)
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="An error occurred during the OAuth token process"
-        )
-    
-@auth_router.get("/userdata")
-async def get_user_data(token: Annotated[str, Depends(Bearer().oauth2_scheme)]):
-    try:
-        id = Bearer().verify(token=token)['id']
-
-        user_data = UserRepository().read_by_id(id)
-
-        result = {"connections": []}
-
-        for connection in user_data.connections:
-            service = init_website_service(website=connection.website)
-            username = service.getUserInfo(access_token=connection.access_token)['login']
-
-            connection_result = {"website": connection.website,
-                                 "id": connection.account_id,
-                                 "username": username}
-            
-            result["connections"].append(connection_result)
-
-        return result
-
-    except HTTPException:
-        raise
-    except Exception as e:
-        logging.exception(e)
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="An error occurred"
-        )

@@ -31,7 +31,7 @@ class UserRepository:
                 new_user = User(username=username, password=hashed_password, is_active=True)
                 session.add(new_user)
                 session.commit()
-                session.refresh(new_user)  # Recharge les données de l'utilisateur
+                session.refresh(new_user)
                 return new_user
         except IntegrityError:
             raise HTTPException(
@@ -139,7 +139,7 @@ class UserRepository:
                 if result.rowcount == 0:
                     raise HTTPException(
                         status_code=status.HTTP_404_NOT_FOUND,
-                        detail=f"Utilisateur avec l'id {_id} non trouvé."
+                        detail=f"User {_id} not found."
                     )
                 session.commit()
         except HTTPException:
