@@ -1,16 +1,15 @@
-import os
 import logging
 
 from typing import Annotated
 from dotenv import load_dotenv
-
-from fastapi import APIRouter, HTTPException,  Depends, status, Response, Cookie, Request
 from fastapi.security import OAuth2PasswordRequestForm
+from fastapi import APIRouter, HTTPException, Depends, status, Response, Request, Form
 
 from repositories.UserRepository import UserRepository
+from repositories.ConnectionRepository import ConnectionRepository
 from services.security.bearer import Bearer
 from services.security.refresh import Refresh
-from utils.utils import is_username_valid, is_password_valid
+from utils.utils import is_username_valid, is_password_valid, init_website_service
 
 auth_router = APIRouter()
 load_dotenv()
@@ -31,21 +30,24 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], resp
     password = form_data.password
 
     if is_username_valid(username=username) and is_password_valid(password=password):
-        user = UserRepository().login(username=username, password=password)
-        if user:
-            bearer = Bearer().generate(_id=user.id)
-            refresh = Refresh().generate(_id=user.id)
+        try:
+            user = UserRepository().login(username=username, password=password)
+            if user:
+                bearer = Bearer().generate(_id=user.id)
+                refresh = Refresh().generate(_id=user.id)
 
-            response.set_cookie(
-                key="refresh",
-                value=refresh,
-                httponly=True,
-                secure=True,
-                samesite="Strict",
-                max_age=604800
-            )
+                response.set_cookie(
+                    key="refresh",
+                    value=refresh,
+                    httponly=True,
+                    secure=True,
+                    samesite="None",
+                    max_age=604800
+                )
 
-            return {"bearer": bearer}
+                return {"bearer": bearer}
+        except Exception:
+            raise
     # The user and/or password don't match the regex
     # The username isn't find in the DB
     # The password is incorrect
@@ -79,7 +81,7 @@ async def register(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], r
                 value=refresh,
                 httponly=True,
                 secure=True,
-                samesite="Strict",
+                samesite="None",
                 max_age=604800
             )
 
@@ -99,7 +101,6 @@ async def refresh(request: Request):
 
     :return: A bearer token
     """
-
     refresh_token = request.cookies.get("refresh")
     if not refresh_token:
         raise HTTPException(
@@ -108,11 +109,5 @@ async def refresh(request: Request):
         )
 
     id = Refresh().verify(token=refresh_token)
-    if id:
-        bearer = Bearer().generate(_id=id)
-        return {"bearer": bearer}
-
-    raise HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Invalid or expired refresh token"
-    )
+    bearer = Bearer().generate(_id=id)
+    return {"bearer": bearer}
