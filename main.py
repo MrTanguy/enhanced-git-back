@@ -1,6 +1,8 @@
 import logging
 
-from api.auth import auth_router
+from api.auth import auth_router 
+from api.connection import connection_router
+from api.user import user_router
 
 from fastapi import FastAPI
 from fastapi.security import OAuth2PasswordBearer
@@ -8,6 +10,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 app.include_router(router=auth_router, prefix="/auth")
+app.include_router(router=connection_router, prefix="/connect")
+app.include_router(router=user_router, prefix="/user")
 
 origins = [
     "https://localhost:5173"   # Autoriser React en HTTPS

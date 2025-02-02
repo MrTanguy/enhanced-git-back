@@ -20,6 +20,22 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.2.0] - 03-02-2025
+
+### Changed 
+- There are now 3 subroutes : /auth, /connect, /user
+
+### Added
+- `/connect/url` => Endpoint to get the oauth url of the asked website.
+- `/connect/token` => Callback endpoint to connect a user with a Connection (only github at that moment).
+- `/connect/delete` => Delete a user's Connection.
+- `/user/data` => Endpoint that give all the Connection informations about the user
+
+### Featured
+- The Oauth connection can be implemented with the abstract OauthInterface (Github is fully implement)
+
+---
+
 ## [0.1.0] - 28-12-2024
 
 ### Added

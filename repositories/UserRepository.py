@@ -3,6 +3,7 @@ import logging
 from fastapi import HTTPException, status
 from sqlalchemy import select, delete, update
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import joinedload
 
 from models.user import User
 from services.db.db import DB
@@ -30,7 +31,7 @@ class UserRepository:
                 new_user = User(username=username, password=hashed_password, is_active=True)
                 session.add(new_user)
                 session.commit()
-                session.refresh(new_user)  # Recharge les données de l'utilisateur
+                session.refresh(new_user)
                 return new_user
         except IntegrityError:
             raise HTTPException(
@@ -56,8 +57,8 @@ class UserRepository:
         :return: the User
         """
         with self.db_connection.get_connection() as session:
-            cmd = select(User).filter_by(id=_id)
-            user = session.execute(cmd).scalar_one_or_none()
+            cmd = select(User).options(joinedload(User.connections)).filter_by(id=_id)
+            user = session.execute(cmd).unique().scalar_one_or_none()
             if user:
                 return user
             raise HTTPException(
@@ -89,7 +90,6 @@ class UserRepository:
         :return: user's data or Error
         """
         try:
-            logging.info(f"Username : {username}")
             db_user = self.read_by_username(username=username)
 
             # If we have a user and the password is correct
@@ -139,7 +139,7 @@ class UserRepository:
                 if result.rowcount == 0:
                     raise HTTPException(
                         status_code=status.HTTP_404_NOT_FOUND,
-                        detail=f"Utilisateur avec l'id {_id} non trouvé."
+                        detail=f"User {_id} not found."
                     )
                 session.commit()
         except HTTPException:
