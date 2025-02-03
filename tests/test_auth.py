@@ -1,45 +1,99 @@
-import pytest
+from fastapi import status
 from fastapi.testclient import TestClient
-from unittest.mock import patch, MagicMock
+
 from main import app
+from repositories.UserRepository import UserRepository
+from services.security.bearer import Bearer
+from services.security.refresh import Refresh
 
 client = TestClient(app)
 
-mock_user = {
-    "username": "test_user",
-    "password": "password123"
-}
+def test_login_valid_credentials(mocker):
+    
+    mock_user = mocker.MagicMock()
+    mock_user.id = 1
 
-"""
+    mocker.patch.object(UserRepository, "login", return_value=mock_user)
+    mocker.patch.object(Bearer, 'generate', return_value="fake_bearer_token")
+    mocker.patch.object(Refresh, 'generate', return_value="fake_refresh_token")
 
-def test_login_success():
-    # Mock pour la méthode `login` de `UserRepository`
-    with patch("repositories.UserRepository") as MockUserRepo:
-        mock_repo = MockUserRepo.return_value
-        mock_repo.login.return_value = mock_user  # Simuler un utilisateur existant
-        
-        response = client.post("/token", data={
-            "username": mock_user["username"],
-            "password": mock_user["password"]
-        })
-        
-        # Vérifier la réponse
-        assert response.status_code == 200
-        assert response.json() == mock_user
+    response = client.post(
+        "/auth/token", 
+        data={
+            "username": "valid_user@test.com", 
+            "password": "Valid@Password123"
+        },
+        headers={"Content-Type": "application/x-www-form-urlencoded"}
+    )
 
-def test_login_invalid_credentials():
-    # Mock pour simuler un échec de connexion
-    with patch("repositories.UserRepository") as MockUserRepo:
-        mock_repo = MockUserRepo.return_value
-        mock_repo.login.return_value = None  # Aucun utilisateur n'est trouvé
-        
-        response = client.post("/token", data={
-            "username": "invalid_user",
-            "password": "wrong_password"
-        })
-        
-        # Vérifier la réponse pour des identifiants invalides
-        assert response.status_code == 401
-        assert response.json() == {"detail": "Invalid credentials"}
-"""
-        
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == {"bearer": "fake_bearer_token"} 
+    assert "refresh" in response.cookies
+
+
+def test_login_invalid_credentials(mocker):
+
+    mocker.patch.object(UserRepository, "login", return_value=None)
+
+    response = client.post(
+        "/auth/token",
+        data={
+            "username": "invalid_user@test.com", 
+            "password": "WrongPassword@123"
+        },
+        headers={"Content-Type": "application/x-www-form-urlencoded"}
+    )
+
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+    assert response.json()["detail"] == "Invalid credentials"
+
+
+def test_login_missing_data():
+
+    response = client.post(
+        "/auth/token",
+        data={
+            "username": "valid_user@test.com"
+        },
+        headers={"Content-Type": "application/x-www-form-urlencoded"}
+    )
+
+    assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY 
+    assert response.json()["detail"] == [{'input': None, 'loc': ['body', 'password'], 'msg': 'Field required', 'type': 'missing'}]
+    
+    response = client.post(
+        "/auth/token",
+        data={"password": "Valid@Password123"},
+        headers={"Content-Type": "application/x-www-form-urlencoded"}
+    )
+    assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY 
+    assert response.json()["detail"] == [{'input': None, 'loc': ['body', 'username'], 'msg': 'Field required', 'type': 'missing'}]
+
+
+def test_login_invalid_data():
+    
+    response = client.post(
+        "/auth/token",
+        data={
+            "username": "valid_user@test.com",
+            "password": "invalid-password" 
+        },
+        headers={"Content-Type": "application/x-www-form-urlencoded"}
+    )
+    
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+    assert response.json()["detail"] == "Please enter a strong password"
+
+    response = client.post(
+        "/auth/token",
+        data={
+            "username": "invalid-email",
+            "password": "Valid@Password123"
+        },
+        headers={"Content-Type": "application/x-www-form-urlencoded"}
+    )
+    
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+    assert response.json()["detail"] == "Please enter a valid email address"
+   
+    
