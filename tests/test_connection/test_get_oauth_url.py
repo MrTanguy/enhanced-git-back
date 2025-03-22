@@ -4,7 +4,6 @@ from fastapi.testclient import TestClient
 from main import app 
 from unittest.mock import patch, MagicMock
 from services.oauth.github import Github
-from services.oauth.oauthInterface import OauthInterface
 from services.security.bearer import Bearer
 
 client = TestClient(app)
@@ -49,8 +48,6 @@ def test_get_oauth_url_invalid_token(mock_bearer_verify):
         headers={"Authorization": f"Bearer {INVALID_BEARER_TOKEN}"},
         params={"website": "github"}
     )
-    
-    print("yes")
     assert response.status_code == 401 
 
 

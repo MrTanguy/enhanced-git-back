@@ -29,7 +29,7 @@ def mock_bearer_verify():
                     status_code=status.HTTP_401_UNAUTHORIZED,
                     detail="Invalid token"
                 )
-            return {"id": VALID_USER_ID}  # Simule un utilisateur authentifié
+            return {"id": VALID_USER_ID} 
 
         mock_verify.side_effect = mock_verify_side_effect
         yield mock_verify
