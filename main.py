@@ -30,12 +30,6 @@ app.include_router(router=user_router, prefix="/user")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 logging.basicConfig(level=logging.INFO)
 
-# DB().create_bdd()
-
 @app.get('/')
 def hello():
     return {"message": "Welcome to the Enhanced-git API"}
-
-@app.get('/test')
-def test():
-    DB().create_bdd()
