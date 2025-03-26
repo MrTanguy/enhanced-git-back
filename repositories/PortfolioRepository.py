@@ -1,4 +1,6 @@
 import logging
+from fastapi import HTTPException, status
+from sqlalchemy import select
 from ulid import ulid
 from sqlalchemy.exc import IntegrityError
 
@@ -13,6 +15,7 @@ class PortfolioRepository:
     def create(self, user_id: int):
         try:
             with self.db_connection.get_connection() as session:
+                # Boucle infini si l'ULID existe déjà
                 while True:
                     try:
                         new_portfolio = Portfolio(user_id=user_id, title="New Portfolio", description="")
@@ -28,3 +31,21 @@ class PortfolioRepository:
         except Exception as e:
             logging.error(f"Erreur lors de la création du portfolio: {e}")
             return None
+        
+    def get_by_ulid(self, ulid: str):
+        try:
+            with self.db_connection.get_connection() as session:
+                try:
+                    cmd = select(Portfolio).filter_by(uuid=ulid)
+                    portfolio = session.execute(cmd).scalar_one_or_none()
+                    if portfolio:
+                        return portfolio
+                    raise HTTPException(
+                        status_code=status.HTTP_404_NOT_FOUND,
+                        detail=f"Unable to find the portfolio with the uuid: {ulid}"
+                    )
+                except Exception as e:
+                    pass
+        except Exception as e:
+            logging.error(f"Erreur lors de la récupération d'un portfolio: {e}")
+            raise HTTPException(status_code=500, detail="Erreur interne du serveur")
