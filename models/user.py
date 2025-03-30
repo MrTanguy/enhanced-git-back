@@ -10,4 +10,9 @@ class User(Base):
     username = Column(VARCHAR(255), nullable=False, unique=True)
     password = Column(VARCHAR(255), nullable=False)
     is_active = Column(BOOLEAN, nullable=False)
-    connections = relationship("Connection", secondary="User_Connection", back_populates="users")
+
+    # Relation avec Connection via User_Connection (Many-to-Many)
+    connections = relationship("Connection", secondary="User_Connection", back_populates="users", passive_deletes=True)
+
+    # Relation avec Portfolio (One-to-Many)
+    portfolios = relationship("Portfolio", back_populates="user", cascade="all, delete-orphan")

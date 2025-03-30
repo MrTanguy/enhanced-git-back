@@ -12,13 +12,11 @@ user_router = APIRouter()
 load_dotenv()
 
 @user_router.get("/data")
-async def get_user_data(token: Annotated[str, Depends(Bearer().oauth2_scheme)]):
+async def get_user_data(user_id: Annotated[int, Depends(Bearer().get_user_id)]):
     try:
-        id = Bearer().verify(token=token)['id']
+        user_data = UserRepository().read_by_id(user_id)
 
-        user_data = UserRepository().read_by_id(id)
-
-        result = {"connections": []}
+        result = {"connections": [], "portfolios": []}
 
         for connection in user_data.connections:
             service = init_website_service(website=connection.website)
@@ -29,6 +27,14 @@ async def get_user_data(token: Annotated[str, Depends(Bearer().oauth2_scheme)]):
                                  "username": username}
             
             result["connections"].append(connection_result)
+
+        for portfolio in user_data.portfolios:
+            portfolio_result = {
+                "uuid": portfolio.uuid,
+                "title": portfolio.title,
+                "description": portfolio.description
+            }
+            result["portfolios"].append(portfolio_result)
 
         return result
 
