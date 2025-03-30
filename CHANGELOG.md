@@ -20,6 +20,23 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.3.0] - 31-03-2025
+
+### Changed 
+- New way to verify the bearer token (Annotated)
+- New DB models to manage portfolios (portfolio, portfolio_connection, user.portfolios)
+
+### Added
+- Unit tests for `/`, `/auth` and `/connection`
+- `/portfolio` => New subroute for portfolio related routes
+- `/portfolio/create` => Create a new portfolio for the user
+- `/portfolio/{portfolio_ulid}` => Give all the informations about the portfolio
+
+### Featured
+- First functions to use portfolio (many more to come)
+
+---
+
 ## [0.2.0] - 03-02-2025
 
 ### Changed 
