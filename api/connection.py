@@ -63,5 +63,3 @@ async def delete_connection(token: Annotated[str, Depends(Bearer().oauth2_scheme
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An error occurred during the process"
         )
-
-

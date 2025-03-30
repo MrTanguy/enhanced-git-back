@@ -1,11 +1,9 @@
-import logging
 import os
 from passlib.context import CryptContext
-from sqlalchemy import create_engine, select
-from sqlalchemy.exc import NoResultFound
+from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
-from models.user import User
+from services.db.base import Base
 
 
 class DB:
@@ -37,3 +35,7 @@ class DB:
 
     def close_connection(self):
         self.Session().close()
+
+    def create_bdd(self):
+        Base.metadata.create_all(self.engine)
+    

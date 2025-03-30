@@ -57,7 +57,7 @@ class UserRepository:
         :return: the User
         """
         with self.db_connection.get_connection() as session:
-            cmd = select(User).options(joinedload(User.connections)).filter_by(id=_id)
+            cmd = select(User).options(joinedload(User.connections), joinedload(User.portfolios)).filter_by(id=_id)
             user = session.execute(cmd).unique().scalar_one_or_none()
             if user:
                 return user

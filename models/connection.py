@@ -1,4 +1,4 @@
-from sqlalchemy import Column, INTEGER, VARCHAR
+from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
 from services.db.base import Base
 
@@ -6,9 +6,23 @@ from services.db.base import Base
 class Connection(Base):
     __tablename__ = 'Connection'
 
-    id = Column(INTEGER, primary_key=True, autoincrement=True)
-    account_id = Column(INTEGER, nullable=False)
-    website = Column(VARCHAR(20), nullable=False)
-    access_token = Column(VARCHAR(50), nullable=False)
-    users = relationship("User", secondary="User_Connection", back_populates="connections")
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    account_id = Column(Integer, nullable=False)
+    website = Column(String(20), nullable=False)
+    access_token = Column(String(50), nullable=False)
 
+    # Relation avec User via User_Connection (Many-to-Many)
+    users = relationship(
+        "User",
+        secondary="User_Connection",
+        back_populates="connections",
+        passive_deletes=True
+    )
+
+    # Relation avec Portfolio via Portfolio_Connection (Many-to-Many)
+    portfolios = relationship(
+        "Portfolio",
+        secondary="Portfolio_Connection",
+        back_populates="connections",
+        passive_deletes=True
+    )

@@ -2,9 +2,10 @@ import datetime
 import logging
 from dotenv import load_dotenv
 from os import getenv
-from fastapi import HTTPException, status
+from fastapi import HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordBearer
 from jwt import ExpiredSignatureError, InvalidTokenError, encode, decode
+from typing import Annotated
 
 class Bearer:
     def __init__(self) -> None:
@@ -36,4 +37,8 @@ class Bearer:
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Invalid token"
             )
-        
+    
+    def get_user_id(self, token: Annotated[str, Depends(OAuth2PasswordBearer(tokenUrl="auth/token"))]):
+        """Récupère l'ID utilisateur à partir du token."""
+        payload = self.verify(token)
+        return payload.get("id")
