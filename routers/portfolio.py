@@ -21,10 +21,7 @@ async def get_portfolio_by_ulid(portfolio_ulid: str):
         # Appel de la méthode pour récupérer le portfolio par ULID
         portfolio = PortfolioRepository().get_by_ulid(portfolio_ulid)
 
-        return {
-            "title": portfolio.title,
-            "description": portfolio.description
-        }
+        return portfolio
     except Exception as e:
         raise HTTPException(status_code=500, detail="Internal server error")
 
