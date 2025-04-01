@@ -3,6 +3,7 @@ from fastapi import HTTPException, status
 from sqlalchemy import select
 from ulid import ulid
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import joinedload
 
 from models.portfolio import Portfolio
 from services.db.db import DB
@@ -30,22 +31,44 @@ class PortfolioRepository:
                 return new_portfolio
         except Exception as e:
             logging.error(f"Erreur lors de la création du portfolio: {e}")
-            return None
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="An error occured while creating a portfolio"
+            )
         
     def get_by_ulid(self, ulid: str):
         try:
             with self.db_connection.get_connection() as session:
-                try:
-                    cmd = select(Portfolio).filter_by(uuid=ulid)
-                    portfolio = session.execute(cmd).scalar_one_or_none()
-                    if portfolio:
-                        return portfolio
-                    raise HTTPException(
-                        status_code=status.HTTP_404_NOT_FOUND,
-                        detail=f"Unable to find the portfolio with the uuid: {ulid}"
-                    )
-                except Exception as e:
-                    pass
+                cmd = select(Portfolio).filter_by(uuid=ulid)
+                portfolio = session.execute(cmd).scalar_one_or_none()
+                if portfolio:
+                    return portfolio
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail=f"Unable to find the portfolio with the ulid: {ulid}"
+                )
+        except HTTPException as e:
+            raise
         except Exception as e:
             logging.error(f"Erreur lors de la récupération d'un portfolio: {e}")
-            raise HTTPException(status_code=500, detail="Erreur interne du serveur")
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal Server Error")
+        
+
+    def update(self, ulid: str, update_data: dict):
+        try:
+            with self.db_connection.get_connection() as session:
+
+                portfolio = session.execute(select(Portfolio).filter_by(uuid=ulid)).scalar_one_or_none()
+                if not portfolio:
+                    raise HTTPException(status_code=404, detail="Portfolio not found")
+
+                for key, value in update_data.dict(exclude_unset=True).items():
+                    setattr(portfolio, key, value)
+
+                session.commit()
+                session.refresh(portfolio)
+                
+                return portfolio
+        except Exception as e:
+            logging.error(f"Erreur lors de la mise à jour du portfolio: {e}")
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal Server Error")
