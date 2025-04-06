@@ -15,29 +15,44 @@ async def create_portfolio(user_id: Annotated[int, Depends(Bearer().get_user_id)
     except:
         raise HTTPException(status_code=500, detail="Internal server error")
 
-@portfolio_router.get("/{portfolio_ulid}")
-async def get_portfolio_by_ulid(portfolio_ulid: str):
+@portfolio_router.get("/{portfolio_uuid}")
+async def get_portfolio_by_uuid(portfolio_uuid: str):
     try:
-        # Appel de la méthode pour récupérer le portfolio par ULID
-        portfolio = PortfolioRepository().get_by_ulid(portfolio_ulid)
+        # Appel de la méthode pour récupérer le portfolio par uuid
+        portfolio = PortfolioRepository().get_by_uuid(portfolio_uuid)
 
         return portfolio
     except Exception as e:
         raise HTTPException(status_code=500, detail="Internal server error")
 
-@portfolio_router.patch("/{portfolio_ulid}")
-async def update_portfolio(user_id: Annotated[int, Depends(Bearer().get_user_id)], portfolio_ulid: str, update_data: PortfolioUpdateSchema):
-    portfolio_repository = PortfolioRepository()
+@portfolio_router.patch("/{portfolio_uuid}")
+async def update_portfolio(user_id: Annotated[int, Depends(Bearer().get_user_id)], portfolio_uuid: str, update_data: PortfolioUpdateSchema):
 
-    portfolio = portfolio_repository.get_by_ulid(portfolio_ulid)
+    portfolio_repository = PortfolioRepository()
+    portfolio = portfolio_repository.get_by_uuid(portfolio_uuid)
 
     if portfolio.user_id != user_id:
         raise HTTPException(status_code=403, detail="You do not have permission to modify this resource")
 
     try:
-        updated_portfolio = portfolio_repository.update(portfolio_ulid, update_data)
+        updated_portfolio = portfolio_repository.update(portfolio_uuid, update_data)
         return updated_portfolio
+    except HTTPException:
+        raise    
     except Exception as e:
         print(f"Error updating portfolio: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
     
+@portfolio_router.delete("/{portfolio_uuid}")
+async def delete_portfolio(user_id: Annotated[int, Depends(Bearer().get_user_id)], portfolio_uuid: str):
+
+    portfolio_repository = PortfolioRepository()
+    portfolio = portfolio_repository.get_by_uuid(portfolio_uuid)
+
+    if portfolio.user_id != user_id:
+        raise HTTPException(status_code=403, detail="You do not have permission to modify this resource")
+    try:
+        portfolio_repository.delete(uuid=portfolio_uuid)
+    except Exception as e:
+        print(f"Error deleting porfolio: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
