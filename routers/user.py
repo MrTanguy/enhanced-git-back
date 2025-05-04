@@ -32,7 +32,7 @@ async def get_user_data(user_id: Annotated[int, Depends(Bearer().get_user_id)]):
             portfolio_result = {
                 "uuid": portfolio.uuid,
                 "title": portfolio.title,
-                "description": portfolio.description
+                "content": portfolio.content
             }
             result["portfolios"].append(portfolio_result)
 
