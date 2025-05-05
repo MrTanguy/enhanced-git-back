@@ -18,7 +18,7 @@ class PortfolioRepository:
                 # Boucle infini si l'uuid existe déjà
                 while True:
                     try:
-                        new_portfolio = Portfolio(user_id=user_id, title="New Portfolio", content={})
+                        new_portfolio = Portfolio(user_id=user_id, title="New Portfolio", content=[])
                         session.add(new_portfolio)
                         session.commit()
                         session.refresh(new_portfolio)
