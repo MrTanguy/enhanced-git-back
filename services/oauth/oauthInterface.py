@@ -17,4 +17,9 @@ class OauthInterface(ABC):
         """ Get user data """
         pass
 
+    @abstractmethod
+    def getAllPublicProjects(self, username: str):
+        """ Get all public repository """
+        pass
+
     

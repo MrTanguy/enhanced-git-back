@@ -9,10 +9,9 @@ class Github(OauthInterface):
     def __init__(self):
         self.__client_id = os.getenv("GITHUB_CLIENT")
         self.__client_secret = os.getenv("GITHUB_CLIENT_SECRET")
-        self.__url_callback = os.getenv("GITHUB_CALLBACK")
 
-        self.url_oauth = f"https://github.com/login/oauth/authorize?client_id={self.__client_id}&redirect_uri={self.__url_callback}&scope=user"
-        self.url_user_info = "https://api.github.com/user"
+        self.url_oauth = f"https://github.com/login/oauth/authorize?client_id={self.__client_id}&scope=user"
+        self.url_user_info = "https://api.github.com"
 
         # Manage access_token
         self.url_get_access_token = "https://github.com/login/oauth/access_token"
@@ -50,7 +49,7 @@ class Github(OauthInterface):
 
     def getUserInfo(self, access_token: str):
         headers = {'Authorization': f'token {access_token}'}
-        url = self.url_user_info
+        url = f"{self.url_user_info}/user"
         try:
             response = requests.get(url=url, headers=headers)
             response.raise_for_status()
@@ -72,3 +71,40 @@ class Github(OauthInterface):
 
         except Exception as e:
             pass
+
+    def getAllPublicProjects(self, account_id: int):
+        """
+        Récupère tous les dépôts publics du compte GitHub en utilisant son ID unique.
+        """
+        headers = {
+            "Accept": "application/vnd.github+json"
+        }
+
+        user_url = f"{self.url_user_info}/user/{account_id}"
+        try:
+            user_response = requests.get(user_url, headers=headers)
+            user_response.raise_for_status()
+            username = user_response.json().get("login")
+            if not username:
+                raise HTTPException(status_code=404, detail="Unable to resolve GitHub username from account_id")
+        except requests.RequestException as e:
+            logging.exception(e)
+            raise HTTPException(status_code=502, detail="Failed to contact GitHub API")
+
+        repos_url = f"{self.url_user_info}/users/{username}/repos?type=public&sort=updated"
+        try:
+            repos_response = requests.get(repos_url, headers=headers)
+            repos_response.raise_for_status()
+            response = []
+            for project in repos_response.json():
+                response.append({
+                    "id": project['id'],
+                    "name": project['name'],
+                    "language": project['language']
+                })
+            
+            # print(repos_response.json())
+            return response
+        except requests.RequestException as e:
+            logging.exception(e)
+            raise HTTPException(status_code=502, detail="Failed to fetch public repositories from GitHub")

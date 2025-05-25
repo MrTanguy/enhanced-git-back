@@ -12,7 +12,7 @@ connection_router = APIRouter()
 load_dotenv()
 
 @connection_router.get("/url")
-async def get_oauth_url(token: Annotated[str, Depends(Bearer().oauth2_scheme)], website: str):
+async def get_oauth_url(user_id: Annotated[int, Depends(Bearer().get_user_id)], website: str):
     """
     Send back the oauth url depending the website asked
 
@@ -21,23 +21,21 @@ async def get_oauth_url(token: Annotated[str, Depends(Bearer().oauth2_scheme)], 
 
     :return: an url
     """
-    Bearer().verify(token=token)
+
     service = init_website_service(website=website)
     return service.getOauthUrl()
 
 
 @connection_router.post("/token")
-async def connect_with_token(token: Annotated[str, Depends(Bearer().oauth2_scheme)], code: Annotated[str, Form()], website: Annotated[str, Form()]):
+async def connect_with_token(user_id: Annotated[int, Depends(Bearer().get_user_id)], code: Annotated[str, Form()], website: Annotated[str, Form()]):
     try:
-        id = Bearer().verify(token=token)['id']
-
         service = init_website_service(website=website)
         access_token = service.getAccessToken(code=code)
         
         user_info = service.getUserInfo(access_token=access_token)
         account_id = user_info['id']
         
-        ConnectionRepository().create(user_id=id, website=website, access_token=access_token, account_id=account_id, service=service)
+        ConnectionRepository().create(user_id=user_id, website=website, access_token=access_token, account_id=account_id, service=service)
         
         return {"message": "Successfully connected."}
 
@@ -51,10 +49,9 @@ async def connect_with_token(token: Annotated[str, Depends(Bearer().oauth2_schem
         )
 
 @connection_router.delete("/delete/{connection_id}")
-async def delete_connection(token: Annotated[str, Depends(Bearer().oauth2_scheme)], connection_id: int):
+async def delete_connection(user_id: Annotated[int, Depends(Bearer().get_user_id)], connection_id: int):
     try:
-        id = Bearer().verify(token=token)['id']
-        ConnectionRepository().delete(id, connection_id)
+        ConnectionRepository().delete(user_id, connection_id)
     except HTTPException:
         raise
     except Exception as e:
@@ -63,3 +60,19 @@ async def delete_connection(token: Annotated[str, Depends(Bearer().oauth2_scheme
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An error occurred during the process"
         )
+
+@connection_router.get("/projects")
+async def get_all_projects(user_id: Annotated[int, Depends(Bearer().get_user_id)], account_id: int, website: str):
+    connections = ConnectionRepository().read(user_id=user_id)
+
+    isOwner = any(c.account_id == account_id and c.website == website for c in connections)
+
+    if not isOwner:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="This isn't a connected account."
+        )
+
+    service = init_website_service(website=website)
+    all_publics = service.getAllPublicProjects(account_id=account_id)
+    return all_publics
