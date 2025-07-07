@@ -15,6 +15,3 @@ class Portfolio(Base):
 
     # Relation avec User (One-to-Many)
     user = relationship("User", back_populates="portfolios")
-
-    # Relation avec Connection (Many-to-Many)
-    connections = relationship("Connection", secondary="Portfolio_Connection", back_populates="portfolios", passive_deletes=True)

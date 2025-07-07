@@ -27,4 +27,4 @@ COPY . .
 EXPOSE 8000
 
 # Lancer l'application avec Uvicorn en mode SSL
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload", "--ssl-keyfile", "/cert/cert.key", "--ssl-certfile", "/cert/cert.crt"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]

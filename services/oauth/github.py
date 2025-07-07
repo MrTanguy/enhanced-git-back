@@ -100,7 +100,8 @@ class Github(OauthInterface):
                 response.append({
                     "id": project['id'],
                     "name": project['name'],
-                    "language": project['language']
+                    "language": project['language'],
+                    "link": f"https://github.com/{username}/{project['name']}"
                 })
             
             # print(repos_response.json())

@@ -18,11 +18,3 @@ class Connection(Base):
         back_populates="connections",
         passive_deletes=True
     )
-
-    # Relation avec Portfolio via Portfolio_Connection (Many-to-Many)
-    portfolios = relationship(
-        "Portfolio",
-        secondary="Portfolio_Connection",
-        back_populates="connections",
-        passive_deletes=True
-    )
