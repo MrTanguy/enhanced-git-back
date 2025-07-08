@@ -101,6 +101,7 @@ class Github(OauthInterface):
                     "id": project['id'],
                     "name": project['name'],
                     "language": project['language'],
+                    "website": "github",
                     "link": f"https://github.com/{username}/{project['name']}"
                 })
             
