@@ -105,7 +105,6 @@ class Github(OauthInterface):
                     "link": f"https://github.com/{username}/{project['name']}"
                 })
             
-            # print(repos_response.json())
             return response
         except requests.RequestException as e:
             logging.exception(e)
