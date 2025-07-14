@@ -63,7 +63,7 @@ class UserRepository:
                 return user
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Utilisateur avec l'id {_id} non trouvé"
+                detail=f"User {_id} not found."
             )
         
     def read_by_username(self, username: str) -> User:

@@ -18,10 +18,11 @@ async def create_portfolio(user_id: Annotated[int, Depends(Bearer().get_user_id)
 @portfolio_router.get("/{portfolio_uuid}")
 async def get_portfolio_by_uuid(portfolio_uuid: str):
     try:
-        # Appel de la méthode pour récupérer le portfolio par uuid
         portfolio = PortfolioRepository().get_by_uuid(portfolio_uuid)
 
         return portfolio
+    except HTTPException as e:
+        raise e
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")
 

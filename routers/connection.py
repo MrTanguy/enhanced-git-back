@@ -65,6 +65,7 @@ async def delete_connection(user_id: Annotated[int, Depends(Bearer().get_user_id
 async def get_all_projects(user_id: Annotated[int, Depends(Bearer().get_user_id)], account_id: int, website: str):
     connections = ConnectionRepository().read(user_id=user_id)
 
+    service = init_website_service(website=website)
     isOwner = any(c.account_id == account_id and c.website == website for c in connections)
 
     if not isOwner:
@@ -73,6 +74,5 @@ async def get_all_projects(user_id: Annotated[int, Depends(Bearer().get_user_id)
             detail="This isn't a connected account."
         )
 
-    service = init_website_service(website=website)
     all_publics = service.getAllPublicProjects(account_id=account_id)
     return all_publics

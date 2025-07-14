@@ -35,7 +35,3 @@ logging.basicConfig(level=logging.INFO)
 @app.get('/')
 def hello():
     return {"message": "Welcome to the Enhanced-git API"}
-
-@app.get('/bdd')
-def bdd():
-    DB().create_bdd()
