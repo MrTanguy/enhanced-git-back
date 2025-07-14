@@ -35,7 +35,4 @@ class DB:
 
     def close_connection(self):
         self.Session().close()
-
-    def create_bdd(self):
-        Base.metadata.create_all(self.engine)
     

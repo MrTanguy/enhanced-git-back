@@ -61,17 +61,6 @@ class Github(OauthInterface):
                 detail="Something wrong happened, please try again later"
             )
         
-    def deleteAccessToken(self, access_token: str):
-        try:
-            headers = {
-                "Authorization": f"token {access_token}"
-            }
-
-            requests.delete(self.url_delete_access_token, headers=headers)
-
-        except Exception as e:
-            pass
-
     def getAllPublicProjects(self, account_id: int):
         """
         Récupère tous les dépôts publics du compte GitHub en utilisant son ID unique.

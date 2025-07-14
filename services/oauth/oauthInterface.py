@@ -21,5 +21,3 @@ class OauthInterface(ABC):
     def getAllPublicProjects(self, username: str):
         """ Get all public repository """
         pass
-
-    
