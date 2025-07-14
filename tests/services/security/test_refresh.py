@@ -2,7 +2,7 @@ import pytest
 import datetime
 from jwt import encode
 from fastapi import HTTPException
-from services.security.refresh import Refresh  # adapte ce chemin si besoin
+from services.security.refresh import Refresh
 
 
 @pytest.fixture

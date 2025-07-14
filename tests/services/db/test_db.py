@@ -12,7 +12,7 @@ def clear_singleton():
 
 @pytest.fixture
 def mock_env():
-    """Mock les variables d’environnement."""
+    """Mock les variables d'environnement."""
     with patch.dict(os.environ, {
         "BDD_HOST": "localhost",
         "BDD_NAME": "testdb",
