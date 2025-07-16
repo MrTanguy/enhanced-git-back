@@ -26,15 +26,14 @@ services:
     restart: always
     build:
       dockerfile: Dockerfile
-      context: .  # Assure-toi d'avoir le bon contexte de build
+      context: . 
     depends_on:
       db:
         condition: service_healthy
     ports:
       - "8000:8000"
     volumes:
-      - .:/app  # Monte le dossier local de l’application
-      - ./cert:/app/cert  # Monte le dossier des certificats pour SSL
+      - .:/app 
 
 volumes:
   db_volume:
