@@ -18,9 +18,9 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ### Removed
 - Deprecated or removed features.
 
---- [0.4.0] - 16-07-2025
+--- 
 
-## [Unreleased]
+## [0.4.0] - 16-07-2025
 
 ### Added
 - `getAllPublicProjects` function in `services/oauth/github` for fetching public GitHub projects.
