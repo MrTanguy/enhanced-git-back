@@ -65,6 +65,23 @@ class ConnectionRepository:
                 detail="Internal server error."
             )
         
+    ########
+    # Read #
+    ########
+    def read(self, user_id):
+        try:
+            with self.db_connection.get_connection() as session:
+                # Find the user
+                find_user = select(User).filter_by(id=user_id)
+                user = session.execute(find_user).scalar_one_or_none()
+                if user:
+                    return user.connections       
+        except Exception as e:
+            pass
+
+    ##########
+    # Delete #
+    ##########
     def delete(self, user_id, account_id):
         try:
             with self.db_connection.get_connection() as session:

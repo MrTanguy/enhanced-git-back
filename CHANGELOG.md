@@ -18,6 +18,24 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ### Removed
 - Deprecated or removed features.
 
+--- 
+
+## [0.4.0] - 16-07-2025
+
+### Added
+- `getAllPublicProjects` function in `services/oauth/github` for fetching public GitHub projects.
+- Input validation using Pydantic models for portfolio data.
+- Extensive test suite with 74% code coverage.
+- Implemented `read` method on `ConnectionRepository`.
+
+### Changed
+- Refactored application structure: moved source files from `api/` to `routers/`.
+- Updated `Dockerfile` to reflect new project structure and dependencies.
+- `routers/connection` : adding a new `/projets` route, returning all public projects.
+
+### Fixed
+- Bug fixes and improvements on the `PortfolioRepository` CRUD implementation.
+
 ---
 
 ## [0.3.0] - 31-03-2025

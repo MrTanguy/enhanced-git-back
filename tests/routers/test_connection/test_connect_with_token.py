@@ -29,7 +29,7 @@ def mock_bearer_verify():
                     status_code=status.HTTP_401_UNAUTHORIZED,
                     detail="Invalid token"
                 )
-            return {"id": VALID_USER_ID} 
+            return {"id": VALID_USER_ID}
 
         mock_verify.side_effect = mock_verify_side_effect
         yield mock_verify
@@ -38,7 +38,7 @@ def mock_bearer_verify():
 @pytest.fixture
 def mock_init_website_service():
     """Mock de init_website_service() pour simuler le service OAuth."""
-    with patch("api.connection.init_website_service") as mock_init:
+    with patch("routers.connection.init_website_service") as mock_init:
         mock_service = MagicMock(spec=Github)
         mock_service.getAccessToken.return_value = MOCK_ACCESS_TOKEN
         mock_service.getUserInfo.return_value = {"id": VALID_ACCOUNT_ID}
@@ -54,7 +54,6 @@ def mock_connection_repository():
 
 
 def test_connect_with_token_success(mock_bearer_verify, mock_init_website_service, mock_connection_repository):
-    """Test succès : utilisateur connecté avec succès."""
     response = client.post(
         "/connect/token",
         headers={"Authorization": f"Bearer {VALID_BEARER_TOKEN}"},
@@ -66,7 +65,6 @@ def test_connect_with_token_success(mock_bearer_verify, mock_init_website_servic
 
 
 def test_connect_with_token_invalid_token(mock_bearer_verify):
-    """Test échec : le token Bearer est invalide."""
     response = client.post(
         "/connect/token",
         headers={"Authorization": f"Bearer {INVALID_BEARER_TOKEN}"},
@@ -78,8 +76,7 @@ def test_connect_with_token_invalid_token(mock_bearer_verify):
 
 
 def test_connect_with_token_invalid_website(mock_bearer_verify):
-    """Test échec : site non reconnu."""
-    with patch("api.connection.init_website_service", 
+    with patch("routers.connection.init_website_service", 
                side_effect=HTTPException(
                    status_code=status.HTTP_400_BAD_REQUEST,
                    detail="Invalid website"
@@ -94,14 +91,13 @@ def test_connect_with_token_invalid_website(mock_bearer_verify):
         assert response.json()["detail"] == "Invalid website"
 
 
-def test_connect_with_token_invalid_code(mock_bearer_verify, mock_init_website_service):
-    """Test échec : code OAuth invalide, donc aucun access token récupéré."""
-    with patch("api.connection.init_website_service") as mock_init:
+def test_connect_with_token_invalid_code(mock_bearer_verify):
+    with patch("routers.connection.init_website_service") as mock_init:
         mock_service = MagicMock(spec=Github)
         mock_service.getAccessToken.side_effect = HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid authorization code"
-        )  # Simule une erreur lors de la récupération du token en base
+        )
         mock_init.return_value = mock_service
 
         response = client.post(
@@ -114,11 +110,10 @@ def test_connect_with_token_invalid_code(mock_bearer_verify, mock_init_website_s
         assert response.json()["detail"] == "Invalid authorization code"
 
 
-def test_connect_with_token_oauth_error(mock_bearer_verify, mock_init_website_service):
-    """Test échec : erreur lors du processus OAuth."""
-    with patch("api.connection.init_website_service") as mock_init:
+def test_connect_with_token_oauth_error(mock_bearer_verify):
+    with patch("routers.connection.init_website_service") as mock_init:
         mock_service = MagicMock(spec=Github)
-        mock_service.getAccessToken.side_effect = Exception("OAuth error")  # Simule une erreur OAuth
+        mock_service.getAccessToken.side_effect = Exception("OAuth error")
         mock_init.return_value = mock_service
 
         response = client.post(

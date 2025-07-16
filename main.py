@@ -4,10 +4,10 @@ from fastapi import FastAPI
 from fastapi.security import OAuth2PasswordBearer
 from fastapi.middleware.cors import CORSMiddleware
 
-from api.auth import auth_router 
-from api.connection import connection_router
-from api.user import user_router
-from api.portfolio import portfolio_router
+from routers.auth import auth_router 
+from routers.connection import connection_router
+from routers.user import user_router
+from routers.portfolio import portfolio_router
 from services.db.db import DB
 
 app = FastAPI()
@@ -35,7 +35,3 @@ logging.basicConfig(level=logging.INFO)
 @app.get('/')
 def hello():
     return {"message": "Welcome to the Enhanced-git API"}
-
-@app.get('/bdd')
-def bdd():
-    DB().create_bdd()
