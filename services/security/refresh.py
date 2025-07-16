@@ -15,11 +15,12 @@ class Refresh:
         payload = {
             "id": _id,
             "type": "refresh",
-            "exp": datetime.datetime.now() + datetime.timedelta(days=7)
+            "exp": int((datetime.datetime.now() + datetime.timedelta(days=7)).timestamp())
         }
 
         token = encode(payload, self.SECURITY_TOKEN, algorithm="HS256")
         return token
+
     
     def verify(self, token: str):
         try:
