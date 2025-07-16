@@ -1,4 +1,5 @@
 import logging
+import os
 
 from fastapi import FastAPI
 from fastapi.security import OAuth2PasswordBearer
@@ -13,7 +14,7 @@ from services.db.db import DB
 app = FastAPI()
 
 origins = [
-    "https://localhost:5173"
+    os.getenv("FRONT_URL")
 ]
 
 app.add_middleware(
