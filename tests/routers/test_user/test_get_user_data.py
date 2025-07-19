@@ -123,3 +123,5 @@ def test_get_user_data_internal_error(mock_bearer_verify):
 
         assert response.status_code == 500
         assert response.json()["detail"] == "An error occurred"
+
+
