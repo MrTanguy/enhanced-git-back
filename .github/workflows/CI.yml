@@ -10,13 +10,13 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      JWT_SECRET: "fakesecret"
-      REFRESH_SECRET: "fakerefresh"
-      DB_USER: "testuser"
-      DB_PASSWORD: "testpass"
-      DB_HOST: "localhost"
-      DB_PORT: "3306"
-      DB_NAME: "test_db"
+      BEARER_SECRET_TOKEN: "fakesecret"
+      REFRESH_SECRET_TOKEN: "fakerefresh"
+      BDD_USER: "testuser"
+      BDD_PSWD: "testpass"
+      BDD_HOST: "localhost"
+      BDD_PORT: "3306"
+      BDD_NAME: "test_db"
       APP_ENV: "test"
 
     steps:
