@@ -1,58 +1,68 @@
-import logging
+"""User router for fetching user-related data such as connections and portfolios."""
 
-from typing import List, Optional, Annotated
+import logging
+from typing import Optional, Annotated
 from dotenv import load_dotenv
 from fastapi import APIRouter, HTTPException, Depends, status, Query
 
-from repositories.UserRepository import UserRepository
+from repositories.user_repository import UserRepository
 from services.security.bearer import Bearer
 from utils.utils import init_website_service
 
 user_router = APIRouter()
 load_dotenv()
 
+
 @user_router.get("/data")
-async def get_user_data( 
-    user_id: Annotated[int, Depends(Bearer().get_user_id)],  
+async def get_user_data(
+    user_id: Annotated[int, Depends(Bearer().get_user_id)],
     types: Optional[str] = Query(None, description="Comma-separated values: connections,portfolios")
 ):
+    """
+    Retrieve user data such as connections and portfolios based on the specified types.
+
+    :param user_id: The ID of the authenticated user
+    :param types: Optional query param (comma-separated) to filter data types: connections, portfolios
+    :return: Dictionary containing the requested user data
+    """
     try:
         modes = ["connections", "portfolios"]
         if types:
             arguments = types.lower().split(",")
-
             for argument in arguments:
                 if argument not in modes:
-                    raise HTTPException(status_code=400, detail=f"Unknown type: {argument}")
+                    raise HTTPException(
+                        status_code=400,
+                        detail=f"Unknown type: {argument}"
+                    )
         else:
             arguments = modes
 
         user_data = UserRepository().read_by_id(user_id)
-
         result = {}
 
         if "connections" in arguments:
             result["connections"] = []
             for connection in user_data.connections:
                 service = init_website_service(website=connection.website)
-                username = service.getUserInfo(access_token=connection.access_token)['login']
+                user_info = service.get_user_info(access_token=connection.access_token)
+                username = user_info['login']
 
-                connection_result = {
+
+                result["connections"].append({
                     "website": connection.website,
                     "id": connection.account_id,
                     "username": username
-                }
-                result["connections"].append(connection_result)
+                })
 
         if "portfolios" in arguments:
             result["portfolios"] = []
             for portfolio in user_data.portfolios:
-                portfolio_result = {
+                result["portfolios"].append({
                     "uuid": portfolio.uuid,
                     "title": portfolio.title,
                     "content": portfolio.content
-                }
-                result["portfolios"].append(portfolio_result)
+                })
 
         return result
 
@@ -63,4 +73,4 @@ async def get_user_data(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An error occurred"
-        )
+        ) from e

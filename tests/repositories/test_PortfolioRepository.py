@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import patch, MagicMock
 from fastapi import HTTPException
 from sqlalchemy.exc import IntegrityError
-from repositories.PortfolioRepository import PortfolioRepository
+from repositories.portfolio_repository import PortfolioRepository
 from models.portfolio import Portfolio
 
 
@@ -119,7 +119,7 @@ def test_create_retries_and_changes_uuid_on_integrity_error(mock_db_session, mon
     def fake_ulid():
         return uuids.pop(0)
     
-    monkeypatch.setattr("repositories.PortfolioRepository.ulid", fake_ulid)
+    monkeypatch.setattr("repositories.portfolio_repository.ulid", fake_ulid)
 
     call_count = {"count": 0}
     def side_effect_add(portfolio):

@@ -23,7 +23,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## [0.4.0] - 16-07-2025
 
 ### Added
-- `getAllPublicProjects` function in `services/oauth/github` for fetching public GitHub projects.
+- `get_all_public_projects` function in `services/oauth/github` for fetching public GitHub projects.
 - Input validation using Pydantic models for portfolio data.
 - Extensive test suite with 74% code coverage.
 - Implemented `read` method on `ConnectionRepository`.

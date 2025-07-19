@@ -3,7 +3,7 @@ from unittest.mock import patch, MagicMock
 from fastapi import HTTPException
 from sqlalchemy.exc import IntegrityError
 from models.user import User
-from repositories.UserRepository import UserRepository
+from repositories.user_repository import UserRepository
 
 
 @pytest.fixture
@@ -27,7 +27,7 @@ def mock_db_session_no_user():
 
 @pytest.fixture
 def user_repo_with_user(mock_db_session_with_user):
-    with patch("repositories.UserRepository.DB") as MockedDB:
+    with patch("repositories.user_repository.DB") as MockedDB:
         db_instance = MockedDB.return_value
         db_instance.get_connection.return_value.__enter__.return_value = mock_db_session_with_user
         db_instance.pwd_context.hash.return_value = "hashedpass"
@@ -37,7 +37,7 @@ def user_repo_with_user(mock_db_session_with_user):
 
 @pytest.fixture
 def user_repo_without_user(mock_db_session_no_user):
-    with patch("repositories.UserRepository.DB") as MockedDB:
+    with patch("repositories.user_repository.DB") as MockedDB:
         db_instance = MockedDB.return_value
         db_instance.get_connection.return_value.__enter__.return_value = mock_db_session_no_user
         db_instance.pwd_context.verify.return_value = False
@@ -48,7 +48,7 @@ def test_create_user_success():
     mock_session = MagicMock()
     mock_session.execute.return_value.scalar_one_or_none.return_value = None  # Pas de conflit
 
-    with patch("repositories.UserRepository.DB") as MockedDB:
+    with patch("repositories.user_repository.DB") as MockedDB:
         db_instance = MockedDB.return_value
         db_instance.get_connection.return_value.__enter__.return_value = mock_session
         db_instance.pwd_context.hash.return_value = "hashedpass"
@@ -64,7 +64,7 @@ def test_create_user_success():
 
 def test_create_user_conflict(mock_db_session_with_user):
     mock_db_session_with_user.commit.side_effect = IntegrityError("conflict", {}, None)
-    with patch("repositories.UserRepository.DB") as MockedDB:
+    with patch("repositories.user_repository.DB") as MockedDB:
         db_instance = MockedDB.return_value
         db_instance.get_connection.return_value.__enter__.return_value = mock_db_session_with_user
         db_instance.pwd_context.hash.return_value = "hashedpass"
@@ -81,7 +81,7 @@ def test_read_by_id_success():
     mock_session = MagicMock()
     mock_session.execute.return_value.unique.return_value.scalar_one_or_none.return_value = user
 
-    with patch("repositories.UserRepository.DB") as MockedDB:
+    with patch("repositories.user_repository.DB") as MockedDB:
         db_instance = MockedDB.return_value
         db_instance.get_connection.return_value.__enter__.return_value = mock_session
         repo = UserRepository()
@@ -93,7 +93,7 @@ def test_read_by_id_not_found():
     mock_session = MagicMock()
     mock_session.execute.return_value.unique.return_value.scalar_one_or_none.return_value = None
 
-    with patch("repositories.UserRepository.DB") as MockedDB:
+    with patch("repositories.user_repository.DB") as MockedDB:
         db_instance = MockedDB.return_value
         db_instance.get_connection.return_value.__enter__.return_value = mock_session
         repo = UserRepository()
@@ -125,7 +125,7 @@ def test_login_wrong_credentials(user_repo_without_user):
 def test_update_user_success(mock_user):
     mock_session = MagicMock()
 
-    with patch("repositories.UserRepository.DB") as MockedDB:
+    with patch("repositories.user_repository.DB") as MockedDB:
         db_instance = MockedDB.return_value
         db_instance.get_connection.return_value.__enter__.return_value = mock_session
         db_instance.pwd_context.hash.return_value = "hashedpass"
@@ -142,7 +142,7 @@ def test_update_user_exception(mock_user):
     mock_session = MagicMock()
     mock_session.commit.side_effect = Exception("fail")
 
-    with patch("repositories.UserRepository.DB") as MockedDB:
+    with patch("repositories.user_repository.DB") as MockedDB:
         db_instance = MockedDB.return_value
         db_instance.get_connection.return_value.__enter__.return_value = mock_session
         db_instance.pwd_context.hash.return_value = "hashedpass"
@@ -157,7 +157,7 @@ def test_delete_user_success():
     mock_session = MagicMock()
     mock_session.execute.return_value.rowcount = 1
 
-    with patch("repositories.UserRepository.DB") as MockedDB:
+    with patch("repositories.user_repository.DB") as MockedDB:
         db_instance = MockedDB.return_value
         db_instance.get_connection.return_value.__enter__.return_value = mock_session
 
@@ -170,7 +170,7 @@ def test_delete_user_not_found():
     mock_session = MagicMock()
     mock_session.execute.return_value.rowcount = 0
 
-    with patch("repositories.UserRepository.DB") as MockedDB:
+    with patch("repositories.user_repository.DB") as MockedDB:
         db_instance = MockedDB.return_value
         db_instance.get_connection.return_value.__enter__.return_value = mock_session
 

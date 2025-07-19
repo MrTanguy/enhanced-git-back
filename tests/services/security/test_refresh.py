@@ -28,7 +28,7 @@ def test_verify_expired_token_raises_401(refresh_instance):
         "type": "refresh",
         "exp": int((datetime.datetime.now() - datetime.timedelta(days=1)).timestamp())
     }
-    token = encode(expired_payload, refresh_instance.SECURITY_TOKEN, algorithm="HS256")
+    token = encode(expired_payload, refresh_instance.security_token, algorithm="HS256")
 
     with pytest.raises(HTTPException) as excinfo:
         refresh_instance.verify(token)

@@ -1,3 +1,8 @@
+"""
+Main module for the Enhanced-git API.
+This module sets up the FastAPI application, routes, CORS, and OAuth2 security.
+"""
+
 import logging
 import os
 
@@ -5,11 +10,11 @@ from fastapi import FastAPI
 from fastapi.security import OAuth2PasswordBearer
 from fastapi.middleware.cors import CORSMiddleware
 
-from routers.auth import auth_router 
+from routers.auth import auth_router
 from routers.connection import connection_router
 from routers.user import user_router
 from routers.portfolio import portfolio_router
-from services.db.db import DB
+# from services.db.db import DB  # Removed because unused
 
 app = FastAPI()
 
@@ -35,4 +40,5 @@ logging.basicConfig(level=logging.INFO)
 
 @app.get('/')
 def hello():
+    """Root endpoint that returns a welcome message."""
     return {"message": "Welcome to the Enhanced-git API"}

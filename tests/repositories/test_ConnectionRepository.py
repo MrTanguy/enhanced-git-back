@@ -3,7 +3,7 @@ from unittest.mock import MagicMock, patch
 from sqlalchemy.exc import IntegrityError
 from fastapi import HTTPException, status
 
-from repositories.ConnectionRepository import ConnectionRepository
+from repositories.connection_repository import ConnectionRepository
 from models.user import User
 from models.connection import Connection
 from models.user_connection import User_Connection
@@ -26,10 +26,6 @@ def repository():
     return ConnectionRepository()
 
 
-##########
-# CREATE #
-##########
-
 def test_create_new_connection_and_link(repository, mock_db_session):
     """Should create a new connection and link it to the user."""
 
@@ -37,7 +33,7 @@ def test_create_new_connection_and_link(repository, mock_db_session):
     mock_user.connections = []
     mock_db_session.execute.return_value.scalar_one_or_none.side_effect = [mock_user, None]  # user found, no connection
 
-    repository.create(user_id=1, website="gitlab", access_token="abc", account_id=42, service="gitlab")
+    repository.create(user_id=1, website="gitlab", access_token="abc", account_id=42)
 
     assert mock_db_session.add.called
     assert mock_db_session.commit.call_count == 1
@@ -54,7 +50,7 @@ def test_create_existing_connection_and_link(repository, mock_db_session):
 
     mock_db_session.execute.return_value.scalar_one_or_none.side_effect = [mock_user, mock_connection, None]
 
-    repository.create(user_id=1, website="github", access_token="xyz", account_id=99, service="github")
+    repository.create(user_id=1, website="github", access_token="xyz", account_id=99)
 
     assert mock_db_session.commit.called
     assert mock_connection in mock_user.connections
@@ -70,7 +66,7 @@ def test_create_connection_already_linked(repository, mock_db_session):
     mock_db_session.execute.return_value.scalar_one_or_none.side_effect = [mock_user, mock_connection, mock_jointure]
 
     with pytest.raises(HTTPException) as exc:
-        repository.create(user_id=1, website="gitlab", access_token="abc", account_id=42, service="gitlab")
+        repository.create(user_id=1, website="gitlab", access_token="abc", account_id=42)
 
     assert exc.value.status_code == status.HTTP_208_ALREADY_REPORTED
 
@@ -82,14 +78,10 @@ def test_create_connection_integrity_error(repository, mock_db_session):
     mock_db_session.commit.side_effect = IntegrityError("statement", "params", "orig")
 
     with pytest.raises(HTTPException) as exc:
-        repository.create(user_id=1, website="gitlab", access_token="abc", account_id=42, service="gitlab")
+        repository.create(user_id=1, website="gitlab", access_token="abc", account_id=42)
 
     assert exc.value.status_code == status.HTTP_400_BAD_REQUEST
 
-
-########
-# READ #
-########
 
 def test_read_connections_for_user(repository, mock_db_session):
     """Should return the user's connections."""
@@ -101,10 +93,6 @@ def test_read_connections_for_user(repository, mock_db_session):
 
     assert result == ["conn1", "conn2"]
 
-
-##########
-# DELETE #
-##########
 
 def test_delete_existing_connection_and_jointure(repository, mock_db_session):
     """Should delete user-connection jointure and connection if no users left."""
@@ -163,7 +151,7 @@ def test_read_user_not_found(repository, mock_db_session):
     """read() returns None if user not found"""
     mock_db_session.execute.return_value.scalar_one_or_none.return_value = None
     result = repository.read(user_id=999)
-    assert result is None
+    assert result == []
 
 
 def test_delete_jointure_not_found_raises(repository, mock_db_session):

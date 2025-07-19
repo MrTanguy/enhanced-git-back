@@ -8,6 +8,7 @@ from services.db.db import DB
 def clear_singleton():
     """Réinitialise le singleton DB entre les tests."""
     DB._instance = None
+    DB._initialized = False
 
 
 @pytest.fixture
