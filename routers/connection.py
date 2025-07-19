@@ -126,3 +126,5 @@ async def get_all_projects(
 
     all_publics = service.get_all_public_projects(account_id=account_id)
     return all_publics
+
+
