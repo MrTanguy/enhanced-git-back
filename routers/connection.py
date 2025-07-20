@@ -1,5 +1,3 @@
-"""Routes for handling user connections to external OAuth services."""
-
 import logging
 from typing import Annotated
 

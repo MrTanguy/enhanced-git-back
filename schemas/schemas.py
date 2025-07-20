@@ -1,5 +1,3 @@
-"""Schemas used for request and response validation in the Enhanced Git API."""
-
 from typing import Optional, Union
 from pydantic import BaseModel
 

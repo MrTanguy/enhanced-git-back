@@ -1,7 +1,3 @@
-"""
-Repository for managing user connections to external services.
-"""
-
 import logging
 
 from fastapi import HTTPException, status

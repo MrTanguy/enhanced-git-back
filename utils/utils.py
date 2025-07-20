@@ -1,7 +1,3 @@
-"""
-Utility functions for validation and OAuth service initialization.
-"""
-
 import re
 
 from fastapi import HTTPException, status

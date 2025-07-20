@@ -1,5 +1,3 @@
-"""Defines the Connection model for external service integrations."""
-
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
 from services.db.base import Base

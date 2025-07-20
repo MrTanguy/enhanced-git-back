@@ -1,5 +1,3 @@
-"""Authentication routes for the Enhanced-git API."""
-
 import logging
 from typing import Annotated
 

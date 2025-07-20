@@ -1,7 +1,3 @@
-"""
-Repository to manage user CRUD operations in the database.
-"""
-
 import logging
 
 from fastapi import HTTPException, status

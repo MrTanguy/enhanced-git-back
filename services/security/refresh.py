@@ -1,5 +1,3 @@
-"""Refresh token handler for generation and verification."""
-
 import datetime
 from os import getenv
 

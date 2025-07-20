@@ -1,5 +1,3 @@
-"""Bearer token handler for authentication and verification."""
-
 import datetime
 from os import getenv
 from typing import Annotated

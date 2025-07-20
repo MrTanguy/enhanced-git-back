@@ -1,7 +1,3 @@
-"""
-Repository for managing Portfolio CRUD operations.
-"""
-
 import logging
 from sqlalchemy import select, delete
 from sqlalchemy.exc import IntegrityError

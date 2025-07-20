@@ -1,5 +1,3 @@
-"""User router for fetching user-related data such as connections and portfolios."""
-
 import logging
 from typing import Optional, Annotated
 from dotenv import load_dotenv

@@ -1,5 +1,3 @@
-"""Database management module for the Enhanced Git API."""
-
 import os
 from passlib.context import CryptContext
 from sqlalchemy import create_engine

@@ -1,5 +1,3 @@
-"""Module for GitHub OAuth integration."""
-
 import logging
 import os
 import requests
@@ -14,7 +12,7 @@ class Github(OauthInterface):
         self.__client_id = os.getenv("GITHUB_CLIENT")
         self.__client_secret = os.getenv("GITHUB_CLIENT_SECRET")
 
-        self.url_oauth = f"https://github.com/login/oauth/authorize?client_id={self.__client_id}&scope=user"
+        self.url_oauth = f"https://github.com/login/oauth/authorize?client_id={self.__client_id}&scope=read:user"
         self.url_user_info = "https://api.github.com"
 
         # Manage access_token

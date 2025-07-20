@@ -439,8 +439,9 @@ disable=raw-checker-failed,
         use-symbolic-message-instead,
         use-implicit-booleaness-not-comparison-to-string,
         use-implicit-booleaness-not-comparison-to-zero,
-        R0801,
-        W3101
+        R0801, # duplicate code
+        W3101, # timeout argument
+        C0114 # module docstring
 
 
 # Enable the message, report, category or checker with the given id(s). You can

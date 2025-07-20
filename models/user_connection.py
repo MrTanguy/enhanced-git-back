@@ -1,5 +1,3 @@
-"""Defines the association table between users and connections."""
-
 from sqlalchemy import Column, ForeignKey, Integer
 from services.db.base import Base
 

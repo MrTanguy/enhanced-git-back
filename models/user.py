@@ -1,5 +1,3 @@
-"""Defines the User model for the database."""
-
 from sqlalchemy import Column, INTEGER, VARCHAR, BOOLEAN
 from sqlalchemy.orm import relationship
 from services.db.base import Base

@@ -1,5 +1,3 @@
-"""OAuth interface module defining the abstract base class for OAuth providers."""
-
 from abc import ABC, abstractmethod
 
 
