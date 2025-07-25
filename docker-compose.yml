@@ -1,5 +1,9 @@
 version: '3.9'
 
+networks:
+  enhanced-git-network:
+    external: true
+
 services:
   db:
     image: postgres:16
@@ -19,12 +23,28 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
+    networks:
+      - enhanced-git-network
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+        loki-batch-size: "400"
+        loki-retries: "5"
 
   adminer:
     image: adminer
     restart: always
     ports:
       - "8080:8080"
+    networks:
+      - enhanced-git-network
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+        loki-batch-size: "400"
+        loki-retries: "5"
 
   api:
     restart: always
@@ -41,6 +61,15 @@ services:
       - ./certs:/app/certs
     env_file:
       - .env
+    networks:
+      - enhanced-git-network
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+        loki-batch-size: "400"
+        loki-retries: "5"
 
 volumes:
   db_volume:
+
