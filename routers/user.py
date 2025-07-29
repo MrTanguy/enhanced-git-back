@@ -72,3 +72,14 @@ async def get_user_data(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An error occurred"
         ) from e
+
+@user_router.get("/me")
+async def get_user_info(
+    user_id: Annotated[int, Depends(Bearer().get_user_id)]
+):
+    """
+    Retrieve the id of the user
+
+    :param user_id: The ID of the authenticated user
+    """
+    return {"id": user_id}
