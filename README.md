@@ -57,6 +57,11 @@ FRONT_URL=""
    ```bash
    pip install -r requirements.txt
    ```
+
+3. Update database:
+   ```bash
+   alembic upgrade head
+   ```
 3. Run the application:
    ```bash
    uvicorn main:app --reload
