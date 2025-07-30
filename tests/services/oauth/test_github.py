@@ -11,51 +11,51 @@ def github_instance():
 
 
 @patch("services.oauth.github.requests.post")
-def test_getAccessToken_success(mock_post, github_instance):
+def test_get_access_token_success(mock_post, github_instance):
     mock_response = MagicMock()
     mock_response.json.return_value = {"access_token": "fake_token"}
     mock_response.raise_for_status.return_value = None
     mock_post.return_value = mock_response
 
-    token = github_instance.getAccessToken("fake_code")
+    token = github_instance.get_access_token("fake_code")
     assert token == "fake_token"
     mock_post.assert_called_once()
 
 
 @patch("services.oauth.github.requests.post")
-def test_getAccessToken_failure_raises_http_exception(mock_post, github_instance):
+def test_get_access_token_failure_raises_http_exception(mock_post, github_instance):
     mock_post.side_effect = requests.exceptions.RequestException("Network error")
     with pytest.raises(HTTPException):
-        github_instance.getAccessToken("fake_code")
+        github_instance.get_access_token("fake_code")
 
 
 @patch("services.oauth.github.requests.get")
-def test_getUserInfo_success(mock_get, github_instance):
+def test_get_user_info_success(mock_get, github_instance):
     mock_response = MagicMock()
     mock_response.json.return_value = {"login": "testuser", "id": 123}
     mock_response.raise_for_status.return_value = None
     mock_get.return_value = mock_response
 
-    user_info = github_instance.getUserInfo("fake_token")
+    user_info = github_instance.get_user_info("fake_token")
     assert user_info["login"] == "testuser"
     mock_get.assert_called_once()
 
 
 @patch("services.oauth.github.requests.get")
-def test_getUserInfo_failure_raises_http_exception(mock_get, github_instance):
+def test_get_user_info_failure_raises_http_exception(mock_get, github_instance):
     mock_get.side_effect = requests.exceptions.RequestException("Network error")
     with pytest.raises(HTTPException):
-        github_instance.getUserInfo("fake_token")
+        github_instance.get_user_info("fake_token")
 
 
 @patch("services.oauth.github.requests.get")
-def test_getAllPublicProjects_success(mock_get, github_instance):
-    # Mock de la réponse pour user info
+def test_get_all_public_projects_success(mock_get, github_instance):
+    
     mock_user_response = MagicMock()
     mock_user_response.json.return_value = {"login": "testuser"}
     mock_user_response.raise_for_status.return_value = None
 
-    # Mock de la réponse pour les repos
+    
     mock_repos_response = MagicMock()
     mock_repos_response.json.return_value = [
         {"id": 1, "name": "repo1", "language": "Python"},
@@ -63,24 +63,24 @@ def test_getAllPublicProjects_success(mock_get, github_instance):
     ]
     mock_repos_response.raise_for_status.return_value = None
 
-    # Le side_effect permet de retourner successivement les 2 mocks
+    
     mock_get.side_effect = [mock_user_response, mock_repos_response]
 
-    projects = github_instance.getAllPublicProjects(123)
+    projects = github_instance.get_all_public_projects(123)
     assert len(projects) == 2
     assert projects[0]["language"] == "Python"
     assert projects[0]["website"] == "github"
     mock_get.assert_called()
 
 @patch("services.oauth.github.requests.get")
-def test_getAllPublicProjects_api_failure_raises_http_exception(mock_get, github_instance):
+def test_get_all_public_projects_api_failure_raises_http_exception(mock_get, github_instance):
     mock_get.side_effect = requests.exceptions.RequestException("GitHub API failure")
     with pytest.raises(HTTPException):
-        github_instance.getAllPublicProjects("testuser")
+        github_instance.get_all_public_projects("testuser")
 
 @patch("services.oauth.github.requests.get")
-def test_getAllPublicProjects_username_not_found_raises_http_exception(mock_get, github_instance):
-    # Mock de la réponse user info avec un dict vide (pas de login)
+def test_get_all_public_projects_username_not_found_raises_http_exception(mock_get, github_instance):
+    
     mock_user_response = MagicMock()
     mock_user_response.json.return_value = {}
     mock_user_response.raise_for_status.return_value = None
@@ -88,42 +88,41 @@ def test_getAllPublicProjects_username_not_found_raises_http_exception(mock_get,
     mock_get.return_value = mock_user_response
 
     with pytest.raises(HTTPException) as exc_info:
-        github_instance.getAllPublicProjects(123)
+        github_instance.get_all_public_projects(123)
     assert exc_info.value.status_code == 404
 
 
 @patch("services.oauth.github.requests.get")
-def test_getAllPublicProjects_user_api_failure_raises_http_exception(mock_get, github_instance):
-    # Exception à la requête user info
+def test_get_all_public_projects_user_api_failure_raises_http_exception(mock_get, github_instance):
+    
     mock_get.side_effect = requests.exceptions.RequestException("GitHub API failure")
 
     with pytest.raises(HTTPException) as exc_info:
-        github_instance.getAllPublicProjects(123)
+        github_instance.get_all_public_projects(123)
     assert exc_info.value.status_code == 502
 
 
 @patch("services.oauth.github.requests.get")
-def test_getAllPublicProjects_repos_api_failure_raises_http_exception(mock_get, github_instance):
-    # Mock user info valide
+def test_get_all_public_projects_repos_api_failure_raises_http_exception(mock_get, github_instance):
+    
     mock_user_response = MagicMock()
     mock_user_response.json.return_value = {"login": "testuser"}
     mock_user_response.raise_for_status.return_value = None
 
-    # Fonction side_effect qui différencie les 2 appels
+    
     def side_effect(url, headers):
         if f"/user/" in url:
             return mock_user_response
         else:
-            # Simule une exception lors de la récupération des repos
             raise requests.exceptions.RequestException("Repos API failure")
 
     mock_get.side_effect = side_effect
 
     with pytest.raises(HTTPException) as exc_info:
-        github_instance.getAllPublicProjects(123)
+        github_instance.get_all_public_projects(123)
     assert exc_info.value.status_code == 502
 
 
-def test_getOauthUrl_returns_correct_url(github_instance):
+def test_get_oauth_url_returns_correct_url(github_instance):
     expected_url = github_instance.url_oauth
-    assert github_instance.getOauthUrl() == expected_url
+    assert github_instance.get_oauth_url() == expected_url

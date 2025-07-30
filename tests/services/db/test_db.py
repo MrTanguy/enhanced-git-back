@@ -8,6 +8,7 @@ from services.db.db import DB
 def clear_singleton():
     """Réinitialise le singleton DB entre les tests."""
     DB._instance = None
+    DB._initialized = False
 
 
 @pytest.fixture
@@ -15,6 +16,7 @@ def mock_env():
     """Mock les variables d'environnement."""
     with patch.dict(os.environ, {
         "BDD_HOST": "localhost",
+        "BDD_PORT": "5432",
         "BDD_NAME": "testdb",
         "BDD_USER": "testuser",
         "BDD_PSWD": "testpassword"
@@ -48,7 +50,7 @@ def test_db_initialization(mock_env, mock_sqlalchemy):
     db_instance = DB()
 
     # Vérifie que la chaîne de connexion est correcte
-    expected_conn_str = "mysql+mysqlconnector://testuser:testpassword@localhost/testdb"
+    expected_conn_str = "postgresql+psycopg2://testuser:testpassword@localhost:5432/testdb"
     assert db_instance.connection_string == expected_conn_str
 
     # Vérifie les mocks appelés

@@ -4,7 +4,7 @@ from fastapi.testclient import TestClient
 from fastapi import HTTPException, status
 from main import app
 from services.security.bearer import Bearer
-from repositories.PortfolioRepository import PortfolioRepository
+from repositories.portfolio_repository import PortfolioRepository
 
 client = TestClient(app)
 
