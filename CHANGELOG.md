@@ -18,12 +18,25 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ### Removed
 - Deprecated or removed features.
 
+---
+
+## [0.5.0] - 30-07-2025
+
+### Added 
+ - `alembic` : create and manage migrations.
+ - `.github/workflow/CI.yml` : CI that run TU and PyLint.
+ -  `/tests/repositories` added tests to improve code coverage to 96%.
+ - `/user/me` : return the user ID.
+
+### Changed 
+ - A lot of files to respect PyLint recommendations.
+
 --- 
 
 ## [0.4.0] - 16-07-2025
 
 ### Added
-- `getAllPublicProjects` function in `services/oauth/github` for fetching public GitHub projects.
+- `get_all_public_projects` function in `services/oauth/github` for fetching public GitHub projects.
 - Input validation using Pydantic models for portfolio data.
 - Extensive test suite with 74% code coverage.
 - Implemented `read` method on `ConnectionRepository`.

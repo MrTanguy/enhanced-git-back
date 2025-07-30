@@ -25,10 +25,10 @@ def mock_bearer_verify():
 
 @pytest.fixture
 def mock_github_service():
-    # Patch init_website_service to return a mock with getUserInfo method
+    # Patch init_website_service to return a mock with get_user_info method
     with patch("routers.user.init_website_service") as mock_init_service:
         mock_service = MagicMock()
-        mock_service.getUserInfo.return_value = {"login": "mocked_username"}
+        mock_service.get_user_info.return_value = {"login": "mocked_username"}
         mock_init_service.return_value = mock_service
         yield mock_init_service
 
@@ -55,7 +55,7 @@ def mock_get_user_data():
         connections=[mock_connection],
         portfolios=[mock_portfolio]
     )
-    with patch("repositories.UserRepository.UserRepository.read_by_id", return_value=user_mock):
+    with patch("repositories.user_repository.UserRepository.read_by_id", return_value=user_mock):
         yield
 
 def test_get_user_data_default_all(mock_bearer_verify, mock_get_user_data, mock_github_service):
@@ -82,7 +82,7 @@ def test_get_user_data_only_connections(mock_bearer_verify, mock_github_service)
     mock_connection.access_token = "mocked_token"
 
     user_mock = make_mock_user(connections=[mock_connection], portfolios=[])
-    with patch("repositories.UserRepository.UserRepository.read_by_id", return_value=user_mock):
+    with patch("repositories.user_repository.UserRepository.read_by_id", return_value=user_mock):
         headers = {"Authorization": f"Bearer {VALID_BEARER_TOKEN}"}
         response = client.get("/user/data?types=connections", headers=headers)
 
@@ -98,7 +98,7 @@ def test_get_user_data_only_portfolios(mock_bearer_verify):
     mock_portfolio.content = ["content1", "content2"]
 
     user_mock = make_mock_user(connections=[], portfolios=[mock_portfolio])
-    with patch("repositories.UserRepository.UserRepository.read_by_id", return_value=user_mock):
+    with patch("repositories.user_repository.UserRepository.read_by_id", return_value=user_mock):
         headers = {"Authorization": f"Bearer {VALID_BEARER_TOKEN}"}
         response = client.get("/user/data?types=portfolios", headers=headers)
 
@@ -115,7 +115,7 @@ def test_get_user_data_invalid_type(mock_bearer_verify):
     assert response.json()["detail"] == "Unknown type: invalidtype"
 
 def test_get_user_data_internal_error(mock_bearer_verify):
-    with patch("repositories.UserRepository.UserRepository.read_by_id") as mock_read_by_id:
+    with patch("repositories.user_repository.UserRepository.read_by_id") as mock_read_by_id:
         mock_read_by_id.side_effect = Exception("Unexpected error")
 
         headers = {"Authorization": f"Bearer {VALID_BEARER_TOKEN}"}

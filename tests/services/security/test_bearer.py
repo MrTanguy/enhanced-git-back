@@ -18,7 +18,7 @@ def test_generate_returns_token(bearer):
 
 def test_verify_valid_token_returns_payload(bearer):
     payload = {"id": 42, "type": "bearer", "exp": datetime.datetime.now() + datetime.timedelta(hours=1)}
-    token = encode(payload, bearer.SECURITY_TOKEN, algorithm="HS256")
+    token = encode(payload, bearer.security_token, algorithm="HS256")
     result = bearer.verify(token)
     assert result["id"] == 42
 
@@ -28,7 +28,7 @@ def test_verify_expired_token_raises_401(bearer):
         "type": "bearer",
         "exp": int((datetime.datetime.now() - datetime.timedelta(hours=1)).timestamp())
     }
-    token = encode(expired_payload, bearer.SECURITY_TOKEN, algorithm="HS256")
+    token = encode(expired_payload, bearer.security_token, algorithm="HS256")
     with pytest.raises(HTTPException) as excinfo:
         bearer.verify(token)
     assert excinfo.value.status_code == 401

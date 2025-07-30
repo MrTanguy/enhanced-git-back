@@ -4,7 +4,7 @@ from fastapi.testclient import TestClient
 from fastapi import HTTPException, status
 from main import app
 from services.security.bearer import Bearer
-from repositories.ConnectionRepository import ConnectionRepository
+from repositories.connection_repository import ConnectionRepository
 
 client = TestClient(app)
 
@@ -30,24 +30,24 @@ def mock_bearer_verify():
 def mock_init_website_service():
     with patch("routers.connection.init_website_service") as mock_init:
         mock_service = MagicMock()
-        mock_service.getAllPublicProjects.return_value = [{"name": "Mock Project"}]
+        mock_service.get_all_public_projects.return_value = [{"name": "Mock Project"}]
         mock_init.return_value = mock_service
         yield mock_init
 
 
 @pytest.fixture
-def mock_connection_repository():
+def mock_ConnectionRepository():
     with patch.object(ConnectionRepository, "read") as mock_read:
         yield mock_read
 
 
 def test_get_all_projects_authorized(
-    mock_bearer_verify, mock_init_website_service, mock_connection_repository
+    mock_bearer_verify, mock_init_website_service, mock_ConnectionRepository
 ):
     mock_connection = MagicMock()
     mock_connection.account_id = 123
     mock_connection.website = "github"
-    mock_connection_repository.return_value = [mock_connection]
+    mock_ConnectionRepository.return_value = [mock_connection]
 
     response = client.get(
         "/connect/projects",
@@ -60,12 +60,12 @@ def test_get_all_projects_authorized(
 
 
 def test_get_all_projects_unauthorized(
-    mock_bearer_verify, mock_init_website_service, mock_connection_repository
+    mock_bearer_verify, mock_init_website_service, mock_ConnectionRepository
 ):
     mock_connection = MagicMock()
     mock_connection.account_id = 123
     mock_connection.website = "github"
-    mock_connection_repository.return_value = [mock_connection]
+    mock_ConnectionRepository.return_value = [mock_connection]
 
     response = client.get(
         "/connect/projects",
@@ -78,12 +78,12 @@ def test_get_all_projects_unauthorized(
 
 
 def test_get_all_projects_forbidden(
-    mock_bearer_verify, mock_init_website_service, mock_connection_repository
+    mock_bearer_verify, mock_init_website_service, mock_ConnectionRepository
 ):
     mock_connection = MagicMock()
     mock_connection.account_id = 999
     mock_connection.website = "gitlab"
-    mock_connection_repository.return_value = [mock_connection]
+    mock_ConnectionRepository.return_value = [mock_connection]
 
     response = client.get(
         "/connect/projects",
@@ -96,9 +96,9 @@ def test_get_all_projects_forbidden(
 
 
 def test_get_all_projects_no_connections(
-    mock_bearer_verify, mock_init_website_service, mock_connection_repository
+    mock_bearer_verify, mock_init_website_service, mock_ConnectionRepository
 ):
-    mock_connection_repository.return_value = []
+    mock_ConnectionRepository.return_value = []
 
     response = client.get(
         "/connect/projects",
@@ -111,12 +111,12 @@ def test_get_all_projects_no_connections(
 
 
 def test_init_service_called_with_correct_website(
-    mock_bearer_verify, mock_init_website_service, mock_connection_repository
+    mock_bearer_verify, mock_init_website_service, mock_ConnectionRepository
 ):
     mock_connection = MagicMock()
     mock_connection.account_id = 123
     mock_connection.website = "github"
-    mock_connection_repository.return_value = [mock_connection]
+    mock_ConnectionRepository.return_value = [mock_connection]
 
     website_param = "github"
     response = client.get(
@@ -130,12 +130,12 @@ def test_init_service_called_with_correct_website(
 
 
 def test_get_all_projects_init_service_error(
-    mock_bearer_verify, mock_connection_repository
+    mock_bearer_verify, mock_ConnectionRepository
 ):
     mock_connection = MagicMock()
     mock_connection.account_id = 123
     mock_connection.website = "github"
-    mock_connection_repository.return_value = [mock_connection]
+    mock_ConnectionRepository.return_value = [mock_connection]
 
     with patch(
         "routers.connection.init_website_service",

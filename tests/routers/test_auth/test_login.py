@@ -2,7 +2,7 @@ from fastapi import status, HTTPException
 from fastapi.testclient import TestClient
 
 from main import app
-from repositories.UserRepository import UserRepository
+from repositories.user_repository import UserRepository
 from services.security.bearer import Bearer
 from services.security.refresh import Refresh
 

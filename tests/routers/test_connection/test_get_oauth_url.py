@@ -29,7 +29,7 @@ def mock_bearer_verify():
 def test_get_oauth_url_returns_200_with_valid_website(mock_bearer_verify):
     with patch("routers.connection.init_website_service") as mock_init:
         mock_service = MagicMock(spec=Github)
-        mock_service.getOauthUrl.return_value = "https://oauth.example.com/auth"
+        mock_service.get_oauth_url.return_value = "https://oauth.example.com/auth"
         mock_init.return_value = mock_service
 
         response = client.get(
@@ -41,7 +41,7 @@ def test_get_oauth_url_returns_200_with_valid_website(mock_bearer_verify):
         assert response.status_code == 200
         assert response.json() == "https://oauth.example.com/auth"
         mock_init.assert_called_once_with(website="github")
-        mock_service.getOauthUrl.assert_called_once()
+        mock_service.get_oauth_url.assert_called_once()
 
 
 def test_get_oauth_url_returns_401_with_invalid_token(mock_bearer_verify):

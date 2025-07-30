@@ -6,7 +6,7 @@ from main import app
 from unittest.mock import patch, MagicMock
 from services.oauth.github import Github
 from services.security.bearer import Bearer
-from repositories.ConnectionRepository import ConnectionRepository
+from repositories.connection_repository import ConnectionRepository
 
 client = TestClient(app)
 
@@ -40,20 +40,20 @@ def mock_init_website_service():
     """Mock de init_website_service() pour simuler le service OAuth."""
     with patch("routers.connection.init_website_service") as mock_init:
         mock_service = MagicMock(spec=Github)
-        mock_service.getAccessToken.return_value = MOCK_ACCESS_TOKEN
-        mock_service.getUserInfo.return_value = {"id": VALID_ACCOUNT_ID}
+        mock_service.get_access_token.return_value = MOCK_ACCESS_TOKEN
+        mock_service.get_user_info.return_value = {"id": VALID_ACCOUNT_ID}
         mock_init.return_value = mock_service
         yield mock_init
 
 
 @pytest.fixture
-def mock_connection_repository():
+def mock_ConnectionRepository():
     """Mock de ConnectionRepository().create pour éviter d'écrire en base de données."""
     with patch.object(ConnectionRepository, "create") as mock_create:
         yield mock_create
 
 
-def test_connect_with_token_success(mock_bearer_verify, mock_init_website_service, mock_connection_repository):
+def test_connect_with_token_success(mock_bearer_verify, mock_init_website_service, mock_ConnectionRepository):
     response = client.post(
         "/connect/token",
         headers={"Authorization": f"Bearer {VALID_BEARER_TOKEN}"},
@@ -94,7 +94,7 @@ def test_connect_with_token_invalid_website(mock_bearer_verify):
 def test_connect_with_token_invalid_code(mock_bearer_verify):
     with patch("routers.connection.init_website_service") as mock_init:
         mock_service = MagicMock(spec=Github)
-        mock_service.getAccessToken.side_effect = HTTPException(
+        mock_service.get_access_token.side_effect = HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid authorization code"
         )
@@ -113,7 +113,7 @@ def test_connect_with_token_invalid_code(mock_bearer_verify):
 def test_connect_with_token_oauth_error(mock_bearer_verify):
     with patch("routers.connection.init_website_service") as mock_init:
         mock_service = MagicMock(spec=Github)
-        mock_service.getAccessToken.side_effect = Exception("OAuth error")
+        mock_service.get_access_token.side_effect = Exception("OAuth error")
         mock_init.return_value = mock_service
 
         response = client.post(

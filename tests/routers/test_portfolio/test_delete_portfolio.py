@@ -34,7 +34,7 @@ def test_delete_portfolio_success(mock_bearer_verify, mock_portfolio_repo):
     headers = {"Authorization": f"Bearer {VALID_BEARER_TOKEN}"}
     response = client.delete(f"/portfolio/{VALID_UUID}", headers=headers)
 
-    assert response.status_code == 200 or response.status_code == 204  # selon FastAPI, 200 par défaut
+    assert response.status_code == 200 or response.status_code == 204
 
 def test_delete_portfolio_forbidden(mock_bearer_verify, mock_portfolio_repo):
     mock_instance = mock_portfolio_repo.return_value
