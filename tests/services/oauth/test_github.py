@@ -13,7 +13,7 @@ def github_instance():
 @patch("services.oauth.github.requests.post")
 def test_get_access_token_success(mock_post, github_instance):
     mock_response = MagicMock()
-    mock_response.json.return_value = {"access_token": "fake_token"}
+    mock_response.json.return_value = {"access_token": "fake_token", "scope": "read:user"}
     mock_response.raise_for_status.return_value = None
     mock_post.return_value = mock_response
 

@@ -1,13 +1,17 @@
 import logging
+import os
 
+from dotenv import load_dotenv
 from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
+from cryptography.fernet import Fernet
 
 from models.connection import Connection
 from models.user_connection import User_Connection
 from models.user import User
 from services.db.db import DB
+from services.security.data import Data
 
 
 class ConnectionRepository:
@@ -15,11 +19,12 @@ class ConnectionRepository:
 
     def __init__(self):
         self.db_connection = DB()
+        self.data = Data()
 
     ##########
     # Create #
     ##########
-    def create(self, user_id: int, website: str, access_token: str, account_id: int):
+    def create(self, user_id: int, website: str, access_token: str, account_id: int, refresh_token: str | None):
         """
         Create or link a connection for a user.
 
@@ -59,7 +64,7 @@ class ConnectionRepository:
 
                 else:
                     new_connection = Connection(
-                        account_id=account_id, website=website, access_token=access_token
+                        account_id=account_id, website=website, access_token=self.data.encrypt(access_token), refresh_token=self.data.encrypt(refresh_token)
                     )
                     user.connections.append(new_connection)
                     session.add(new_connection)
@@ -96,6 +101,11 @@ class ConnectionRepository:
                 user = session.execute(find_user).scalar_one_or_none()
 
                 if user:
+                    for conn in user.connections:
+                        if conn.access_token:
+                            conn.access_token = self.data.decrypt(conn.access_token)
+                        if conn.refresh_token:
+                            conn.refresh_token = self.data.decrypt(conn.refresh_token)
                     return user.connections
                 return []
 

@@ -1,10 +1,15 @@
 import logging
+
+import os
+from cryptography.fernet import Fernet
+
 from typing import Optional, Annotated
 from dotenv import load_dotenv
 from fastapi import APIRouter, HTTPException, Depends, status, Query
 
 from repositories.user_repository import UserRepository
 from services.security.bearer import Bearer
+from services.security.data import Data
 from utils.utils import init_website_service
 
 user_router = APIRouter()
@@ -41,11 +46,17 @@ async def get_user_data(
 
         if "connections" in arguments:
             result["connections"] = []
+            data = Data()
             for connection in user_data.connections:
                 service = init_website_service(website=connection.website)
-                user_info = service.get_user_info(access_token=connection.access_token)
-                username = user_info['login']
 
+                access_token = data.decrypt(connection.access_token)
+                user_info = service.get_user_info(access_token=access_token)
+
+                if connection.website == "github":
+                    username = user_info['login']
+                elif connection.website == "gitlab":
+                    username = user_info['username']
 
                 result["connections"].append({
                     "website": connection.website,

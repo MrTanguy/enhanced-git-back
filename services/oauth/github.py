@@ -17,7 +17,6 @@ class Github(OauthInterface):
 
         # Manage access_token
         self.url_get_access_token = "https://github.com/login/oauth/access_token"
-        self.url_delete_access_token = f"https://api.github.com/applications/{self.__client_id}/token"
 
     def get_oauth_url(self) -> str:
         return self.url_oauth
@@ -37,8 +36,18 @@ class Github(OauthInterface):
             response = requests.post(self.url_get_access_token, data=payload, headers=headers, timeout=10)
             response.raise_for_status()
             data = response.json()
-            return data['access_token']
 
+            # {
+            #     'access_token': '...', 
+            #     'token_type': 'bearer', 
+            #     'scope': 'read:user'
+            # }
+
+            # check if the scope hasn't changed
+            if data['scope'] == 'read:user':
+                return data
+            
+            raise Exception('Invalid scope')
         except Exception as e:
             logging.exception(e)
             raise HTTPException(

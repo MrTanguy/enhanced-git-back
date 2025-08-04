@@ -25,7 +25,7 @@ def upgrade() -> None:
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('account_id', sa.Integer(), nullable=False),
     sa.Column('website', sa.String(length=20), nullable=False),
-    sa.Column('access_token', sa.String(length=50), nullable=False),
+    sa.Column('access_token', sa.String(length=150), nullable=False),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('User',

@@ -11,7 +11,8 @@ class Connection(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     account_id = Column(Integer, nullable=False)
     website = Column(String(20), nullable=False)
-    access_token = Column(String(50), nullable=False)
+    access_token = Column(String(150), nullable=False)
+    refresh_token = Column(String(150), nullable=True)
 
     users = relationship(
         "User",
