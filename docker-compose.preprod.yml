@@ -4,7 +4,7 @@ networks:
   monitoring:
     external: true
   enhanced-git-preprod:
-    name: enhanced-git-preprod
+    external: true
 
 services:
   db:
