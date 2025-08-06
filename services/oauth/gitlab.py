@@ -84,6 +84,10 @@ class Gitlab(OauthInterface):
             logging.info(url)
             response = requests.get(url=url, headers=headers, timeout=10)
             response.raise_for_status()
+            if response.status_code == 401:
+                self.refresh_gitlab_token()
+
+
             return response.json()
         except requests.exceptions.RequestException as e:
             logging.exception(e)
@@ -117,28 +121,28 @@ class Gitlab(OauthInterface):
 
 
 
-    # def refresh_gitlab_token(connection: Connection) -> Optional[str]:
-    # data = {
-    #     "grant_type": "refresh_token",
-    #     "refresh_token": connection.refresh_token,
-    #     "client_id": CLIENT_ID,
-    #     "client_secret": CLIENT_SECRET,
-    # }
+    def refresh_gitlab_token(self):
+        data = {
+            "grant_type": "refresh_token",
+            "refresh_token": connection.refresh_token,
+            "client_id": CLIENT_ID,
+            "client_secret": CLIENT_SECRET,
+        }
 
-    # response = requests.post("https://gitlab.com/oauth/token", data=data)
+        response = requests.post("https://gitlab.com/oauth/token", data=data)
     
-    # if response.status_code == 200:
-    #     token_data = response.json()
-    #     connection.access_token = token_data["access_token"]
-    #     connection.refresh_token = token_data["refresh_token"]
-    #     connection.expires_in = token_data["expires_in"]
-    #     db.commit()
-    #     return connection.access_token
-    # else:
-    #     # Si c’est une erreur liée au refresh_token, invalider la connexion
-    #     if response.status_code == 400 and response.json().get("error") == "invalid_grant":
-    #         print("Refresh token invalide ou expiré.")
-    #         # Ici, soit tu supprimes la connexion, soit tu la désactives
-    #         db.delete(connection)
-    #         db.commit()
-    #     return None
+        if response.status_code == 200:
+            token_data = response.json()
+            connection.access_token = token_data["access_token"]
+            connection.refresh_token = token_data["refresh_token"]
+            connection.expires_in = token_data["expires_in"]
+            db.commit()
+            return connection.access_token
+        else:
+            # Si c’est une erreur liée au refresh_token, invalider la connexion
+            if response.status_code == 400 and response.json().get("error") == "invalid_grant":
+                print("Refresh token invalide ou expiré.")
+                # Ici, soit tu supprimes la connexion, soit tu la désactives
+                db.delete(connection)
+                db.commit()
+            return None
