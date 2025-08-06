@@ -1,0 +1,59 @@
+networks:
+  traefik:
+    external: true
+  monitoring:
+    external: true
+  enhanced-git-preprod:
+    name: enhanced-git-preprod
+
+services:
+  db:
+    image: postgres:16
+    restart: always
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${BDD_USER}
+      POSTGRES_PASSWORD: ${BDD_PSWD}
+      POSTGRES_DB: ${BDD_NAME}
+    volumes:
+      - db_volume_preprod:/var/lib/postgresql/data
+    expose:
+      - "5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${BDD_USER} -d ${BDD_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - enhanced-git-preprod
+      - monitoring
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://loki:3100/loki/api/v1/push"
+        loki-batch-size: "400"
+        loki-retries: "5"
+
+  api:
+    restart: always
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./:/app
+    env_file:
+      - .env
+    networks:
+      - traefik
+      - enhanced-git-preprod
+      - monitoring
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://loki:3100/loki/api/v1/push"
+        loki-batch-size: "400"
+        loki-retries: "5"
