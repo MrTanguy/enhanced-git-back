@@ -41,7 +41,7 @@ services:
     container_name: preprod-api
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.preprod
     depends_on:
       db:
         condition: service_healthy
@@ -55,7 +55,7 @@ services:
       - monitoring
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.api.rule=Host(`api.preprod.enhanced-git.com`)"
+      - "traefik.http.routers.api.rule=Host(`apipreprod.enhanced-git.com`)"
       - "traefik.http.routers.api.entrypoints=websecure"
       - "traefik.http.routers.api.tls=true"
       - "traefik.http.routers.api.tls.certresolver=cloudflare"
