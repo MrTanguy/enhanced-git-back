@@ -35,6 +35,7 @@ services:
         loki-url: "http://loki:3100/loki/api/v1/push"
         loki-batch-size: "400"
         loki-retries: "5"
+        loki-labels: "container_name={{.Name}},app={{.Name}}"
 
   api:
     restart: always
@@ -78,6 +79,7 @@ services:
         loki-url: "http://loki:3100/loki/api/v1/push"
         loki-batch-size: "400"
         loki-retries: "5"
+        loki-labels: "container_name={{.Name}},app={{.Name}}"
 
 volumes:
   db_volume_preprod:
