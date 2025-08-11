@@ -65,11 +65,11 @@ services:
       - monitoring
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.api.rule=Host(`apipreprod.enhanced-git.com`)"
-      - "traefik.http.routers.api.entrypoints=websecure"
-      - "traefik.http.routers.api.tls=true"
-      - "traefik.http.routers.api.tls.certresolver=cloudflare"
-      - "traefik.http.services.api.loadbalancer.server.port=8000"
+      - "traefik.http.routers.preprod-api.rule=Host(`apipreprod.enhanced-git.com`)"
+      - "traefik.http.routers.preprod-api.entrypoints=websecure"
+      - "traefik.http.routers.preprod-api.tls=true"
+      - "traefik.http.routers.preprod-api.tls.certresolver=cloudflare"
+      - "traefik.http.services.preprod-api.loadbalancer.server.port=8000"
       - "traefik.docker.network=traefik"
 
     logging:

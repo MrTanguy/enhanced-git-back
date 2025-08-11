@@ -64,11 +64,11 @@ services:
       - monitoring
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.api.rule=Host(`apiprod.enhanced-git.com`)"
-      - "traefik.http.routers.api.entrypoints=websecure"
-      - "traefik.http.routers.api.tls=true"
-      - "traefik.http.routers.api.tls.certresolver=cloudflare"
-      - "traefik.http.services.api.loadbalancer.server.port=7000"
+      - "traefik.http.routers.prod-api.rule=Host(`apiprod.enhanced-git.com`)"
+      - "traefik.http.routers.prod-api.entrypoints=websecure"
+      - "traefik.http.routers.prod-api.tls=true"
+      - "traefik.http.routers.prod-api.tls.certresolver=cloudflare"
+      - "traefik.http.services.prod-api.loadbalancer.server.port=7000"
       - "traefik.docker.network=traefik"
 
     logging:
