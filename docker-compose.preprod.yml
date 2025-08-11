@@ -6,7 +6,7 @@ networks:
   enhanced-git-preprod:
     external: true
 
-name: enhanced-git-preprod
+name: enhanced-git-preprod-back
 services:
   db:
     container_name: preprod-db

@@ -6,7 +6,7 @@ networks:
   enhanced-git-prod:
     external: true
 
-name: enhanced-git-prod
+name: enhanced-git-prod-back
 services:
   db:
     container_name: prod-db
