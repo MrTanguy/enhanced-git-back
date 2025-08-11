@@ -11,8 +11,6 @@ services:
     container_name: prod-db
     image: postgres:16
     restart: always
-    env_file:
-      - .env
     environment:
       POSTGRES_USER: ${BDD_USER}
       POSTGRES_PASSWORD: ${BDD_PSWD}
