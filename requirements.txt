@@ -7,10 +7,10 @@ ulid==1.1
 PyJWT==2.9.0
 pydantic==2.9.2
 passlib==1.7.4
-requests==2.32.3
+requests==2.32.4
 
 pytest==8.3.3
 pytest-cov==6.0.0
 pytest-mock==3.14.0
-
 pylint==3.3.7
+pip-audit==2.9.0
