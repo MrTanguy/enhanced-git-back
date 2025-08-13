@@ -39,7 +39,7 @@ def init_website_service(website: str) -> OauthInterface:
     """
     if website == "github":
         return Github()
-    elif website == "gitlab":
+    if website == "gitlab":
         return Gitlab()
     raise HTTPException(
         status_code=status.HTTP_400_BAD_REQUEST,

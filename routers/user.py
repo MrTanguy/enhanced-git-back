@@ -1,8 +1,5 @@
 import logging
 
-import os
-from cryptography.fernet import Fernet
-
 from typing import Optional, Annotated
 from dotenv import load_dotenv
 from fastapi import APIRouter, HTTPException, Depends, status, Query
@@ -57,6 +54,8 @@ async def get_user_data(
                     username = user_info['login']
                 elif connection.website == "gitlab":
                     username = user_info['username']
+                else:
+                    raise ValueError(f"Unable to find the website : {connection.website}")
 
                 result["connections"].append({
                     "website": connection.website,

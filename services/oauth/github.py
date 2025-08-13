@@ -36,17 +36,9 @@ class Github(OauthInterface):
             response = requests.post(self.url_get_access_token, data=payload, headers=headers, timeout=10)
             response.raise_for_status()
             data = response.json()
-
-            # {
-            #     'access_token': '...', 
-            #     'token_type': 'bearer', 
-            #     'scope': 'read:user'
-            # }
-
-            # check if the scope hasn't changed
+            # {'access_token': '...', 'token_type': 'bearer', 'scope': 'read:user'}
             if data['scope'] == 'read:user':
                 return data
-            
             raise Exception('Invalid scope')
         except Exception as e:
             logging.exception(e)
