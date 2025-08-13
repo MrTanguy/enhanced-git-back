@@ -10,7 +10,8 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      ENCRYPT_TOKEN: "fakesecret"
+      ENCRYPT_TOKEN: "uYiJaK_1vUvugYMnkCiAFegSaJOKVmWpiEHsScpD_wo="
+      ENCRYPT_DATA: "uYiJaK_1vUvugYMnkCiAFegSaJOKVmWpiEHsScpD_wo="
       BDD_USER: "testuser"
       BDD_PSWD: "testpass"
       BDD_HOST: "localhost"
