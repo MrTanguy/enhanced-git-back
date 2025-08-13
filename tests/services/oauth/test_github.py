@@ -18,7 +18,7 @@ def test_get_access_token_success(mock_post, github_instance):
     mock_post.return_value = mock_response
 
     token = github_instance.get_access_token("fake_code")
-    assert token == "fake_token"
+    assert token == {'access_token': 'fake_token', 'scope': 'read:user'}
     mock_post.assert_called_once()
 
 

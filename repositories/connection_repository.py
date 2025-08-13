@@ -1,11 +1,8 @@
 import logging
-import os
 
-from dotenv import load_dotenv
 from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
-from cryptography.fernet import Fernet
 
 from models.connection import Connection
 from models.user_connection import User_Connection
@@ -63,8 +60,10 @@ class ConnectionRepository:
                     session.commit()
 
                 else:
+                    encrypted_access = self.data.encrypt(access_token)
+                    ecrypted_refresh = self.data.encrypt(refresh_token)
                     new_connection = Connection(
-                        account_id=account_id, website=website, access_token=self.data.encrypt(access_token), refresh_token=self.data.encrypt(refresh_token)
+                        account_id=account_id, website=website, access_token=encrypted_access, refresh_token=ecrypted_refresh
                     )
                     user.connections.append(new_connection)
                     session.add(new_connection)

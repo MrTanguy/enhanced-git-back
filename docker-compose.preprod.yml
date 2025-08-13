@@ -3,13 +3,13 @@ networks:
     external: true
   monitoring:
     external: true
-  enhanced-git-prod:
+  enhanced-git-preprod:
     external: true
 
-name: enhanced-git-prod-back
+name: enhanced-git-preprod-back
 services:
   db:
-    container_name: prod-db
+    container_name: preprod-db
     image: postgres:16
     restart: always
     environment:
@@ -17,7 +17,7 @@ services:
       POSTGRES_PASSWORD: ${BDD_PSWD}
       POSTGRES_DB: ${BDD_NAME}
     volumes:
-      - db_volume_prod:/var/lib/postgresql/data
+      - db_volume_preprod:/var/lib/postgresql/data
     expose:
       - "5432"
     healthcheck:
@@ -26,7 +26,7 @@ services:
       timeout: 5s
       retries: 3
     networks:
-      - enhanced-git-prod
+      - enhanced-git-preprod
       - monitoring
     logging:
       driver: loki
@@ -34,13 +34,14 @@ services:
         loki-url: "http://localhost:3100/loki/api/v1/push"
         loki-batch-size: "400"
         loki-retries: "5"
-        loki-external-labels: "app=prod-db"
+        loki-external-labels: "app=preprod-api"
+
   api:
     restart: always
-    container_name: prod-api
+    container_name: preprod-api
     build:
       context: .
-      dockerfile: Dockerfile.prod
+      dockerfile: Dockerfile.preprod
     depends_on:
       db:
         condition: service_healthy
@@ -60,15 +61,15 @@ services:
       FRONT_URL: ${FRONT_URL}
     networks:
       - traefik
-      - enhanced-git-prod
+      - enhanced-git-preprod
       - monitoring
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.prod-api.rule=Host(`apiprod.enhanced-git.com`)"
-      - "traefik.http.routers.prod-api.entrypoints=websecure"
-      - "traefik.http.routers.prod-api.tls=true"
-      - "traefik.http.routers.prod-api.tls.certresolver=cloudflare"
-      - "traefik.http.services.prod-api.loadbalancer.server.port=7000"
+      - "traefik.http.routers.preprod-api.rule=Host(`apipreprod.enhanced-git.com`)"
+      - "traefik.http.routers.preprod-api.entrypoints=websecure"
+      - "traefik.http.routers.preprod-api.tls=true"
+      - "traefik.http.routers.preprod-api.tls.certresolver=cloudflare"
+      - "traefik.http.services.preprod-api.loadbalancer.server.port=8000"
       - "traefik.docker.network=traefik"
 
     logging:
@@ -77,7 +78,7 @@ services:
         loki-url: "http://localhost:3100/loki/api/v1/push"
         loki-batch-size: "400"
         loki-retries: "5"
-        loki-external-labels: "app=prod-api"
+        loki-external-labels: "app=preprod-api"
 
 volumes:
-  db_volume_prod:
+  db_volume_preprod:
