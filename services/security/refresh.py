@@ -12,7 +12,7 @@ class Refresh:
 
     def __init__(self) -> None:
         load_dotenv()
-        self.security_token = getenv("REFRESH_SECRET_TOKEN")
+        self.security_token = getenv("ENCRYPT_TOKEN")
         self.oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
 
     def generate(self, user_id: int):

@@ -10,8 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      BEARER_SECRET_TOKEN: "fakesecret"
-      REFRESH_SECRET_TOKEN: "fakerefresh"
+      ENCRYPT_TOKEN: "fakesecret"
       BDD_USER: "testuser"
       BDD_PSWD: "testpass"
       BDD_HOST: "localhost"

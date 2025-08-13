@@ -14,8 +14,8 @@ services:
       POSTGRES_DB: ${BDD_NAME}
     volumes:
       - db_volume:/var/lib/postgresql/data
-    expose:
-      - "5432"
+    ports:
+      - "5432:5432" # Port ouvert seulement en local pour pouvoir faire des tests
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${BDD_USER} -d ${BDD_NAME}"]
       interval: 10s

@@ -46,7 +46,13 @@ async def connect_with_token(
     """
     try:
         service = init_website_service(website=website)
-        access_token = service.get_access_token(code=code)
+        data = service.get_access_token(code=code)
+
+        access_token = data['access_token']
+        if website == 'gitlab':
+            refresh_token = data['refresh_token']
+        else:
+            refresh_token = None
 
         user_info = service.get_user_info(access_token=access_token)
         account_id = user_info["id"]
@@ -55,7 +61,8 @@ async def connect_with_token(
             user_id=user_id,
             website=website,
             access_token=access_token,
-            account_id=account_id
+            account_id=account_id,
+            refresh_token=refresh_token
         )
 
         return {"message": "Successfully connected."}

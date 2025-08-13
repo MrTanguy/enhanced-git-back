@@ -1,6 +1,7 @@
 import re
 
 from fastapi import HTTPException, status
+from services.oauth.gitlab import Gitlab
 from services.oauth.github import Github
 from services.oauth.oauth_interface import OauthInterface
 
@@ -38,6 +39,8 @@ def init_website_service(website: str) -> OauthInterface:
     """
     if website == "github":
         return Github()
+    elif website == "gitlab":
+        return Gitlab()
     raise HTTPException(
         status_code=status.HTTP_400_BAD_REQUEST,
         detail=f"This authentication provider is not supported : {website}"
