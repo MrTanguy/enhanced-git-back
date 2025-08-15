@@ -36,7 +36,7 @@ def test_get_user_info_success(mock_get, github_instance):
     mock_response.raise_for_status.return_value = None
     mock_get.return_value = mock_response
 
-    user_info = github_instance.get_user_info("fake_token")
+    user_info = github_instance.get_user_info("fake_token", None)
     assert user_info["login"] == "testuser"
     mock_get.assert_called_once()
 
@@ -45,7 +45,7 @@ def test_get_user_info_success(mock_get, github_instance):
 def test_get_user_info_failure_raises_http_exception(mock_get, github_instance):
     mock_get.side_effect = requests.exceptions.RequestException("Network error")
     with pytest.raises(HTTPException):
-        github_instance.get_user_info("fake_token")
+        github_instance.get_user_info("fake_token", None)
 
 
 @patch("services.oauth.github.requests.get")

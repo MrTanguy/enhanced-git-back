@@ -6,7 +6,6 @@ from fastapi import APIRouter, HTTPException, Depends, status, Query
 
 from repositories.user_repository import UserRepository
 from services.security.bearer import Bearer
-from services.security.data import Data
 from utils.utils import init_website_service
 
 user_router = APIRouter()
@@ -43,12 +42,14 @@ async def get_user_data(
 
         if "connections" in arguments:
             result["connections"] = []
-            data = Data()
+            result["errors"] = []
             for connection in user_data.connections:
                 service = init_website_service(website=connection.website)
-
-                access_token = data.decrypt(connection.access_token)
-                user_info = service.get_user_info(access_token=access_token)
+                try:
+                    user_info = service.get_user_info(connection=connection)
+                except HTTPException as e:
+                    result["errors"].append(e.detail)
+                    continue
 
                 if connection.website == "github":
                     username = user_info['login']

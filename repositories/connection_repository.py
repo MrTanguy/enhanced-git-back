@@ -114,6 +114,88 @@ class ConnectionRepository:
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail="Internal server error."
             ) from e
+        
+    def get_by_encrypted_refresh(self, refresh_token: int):
+        """
+        Read a connection with a refresh_token.
+
+        :param refresh_token: refresh token of the account
+        :param website: website of the refresh token
+        :return: a Connection
+        """
+        try:
+            with self.db_connection.get_connection() as session:
+                find_connection = select(Connection).filter_by(refresh_token=refresh_token)
+                connection = session.execute(find_connection).scalar_one_or_none()
+
+                if connection:
+                    connection.access_token = self.data.decrypt(connection.access_token)
+                    connection.refresh_token = self.data.decrypt(connection.refresh_token)
+                    return connection
+                return None
+
+        except Exception as e:
+            logging.exception(e)
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Internal server error."
+            ) from e
+        
+    ##########
+    # Update #
+    ##########
+    def update_by_id(self, connection: Connection):
+        """
+        Update a connection by its ID.
+
+        :param connection: Connection object with updated data
+        :return: updated Connection or raises HTTPException
+        """
+        try:
+            with self.db_connection.get_connection() as session:
+                find_connection = select(Connection).filter_by(id=connection.id)
+                db_connection = session.execute(find_connection).scalar_one_or_none()
+
+                if not db_connection:
+                    raise HTTPException(
+                        status_code=status.HTTP_404_NOT_FOUND,
+                        detail="Connection not found."
+                    )
+
+                if connection.access_token is not None:
+                    db_connection.access_token = self.data.encrypt(connection.access_token)
+
+                if connection.refresh_token is not None:
+                    db_connection.refresh_token = self.data.encrypt(connection.refresh_token)
+
+                if connection.website is not None:
+                    db_connection.website = connection.website
+
+                if connection.account_id is not None:
+                    db_connection.account_id = connection.account_id
+
+                session.commit()
+
+                db_connection.access_token = (
+                    self.data.decrypt(db_connection.access_token)
+                    if db_connection.access_token else None
+                )
+                db_connection.refresh_token = (
+                    self.data.decrypt(db_connection.refresh_token)
+                    if db_connection.refresh_token else None
+                )
+
+                return db_connection
+
+        except HTTPException:
+            raise
+        except Exception as e:
+            logging.exception(e)
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Internal server error."
+            ) from e
+
 
     ##########
     # Delete #
@@ -160,6 +242,43 @@ class ConnectionRepository:
                 if remaining_connections == 0:
                     session.delete(connection)
                     session.commit()
+
+                return {"message": "Connection deleted successfully."}
+
+        except HTTPException:
+            raise
+        except Exception as e:
+            logging.exception(e)
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Internal server error."
+            ) from e
+        
+    def delete_by_id(self, id: str):
+        """
+        Delete a connection with a refresh_token.
+
+        :param refresh_token: refresh token of the account
+        :param website: website of the refresh token
+        :return: success message dict
+        """
+        try:
+            with self.db_connection.get_connection() as session:
+
+                find_connection = select(Connection).filter_by(
+                    id=id
+                )
+                connection = session.execute(find_connection).scalar_one_or_none()
+
+                if not connection:
+                    logging.info("pas connection")
+                    raise HTTPException(
+                        status_code=status.HTTP_404_NOT_FOUND,
+                        detail="Connection not found."
+                    )
+
+                session.delete(connection)
+                session.commit()
 
                 return {"message": "Connection deleted successfully."}
 

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, Text
 from sqlalchemy.orm import relationship
 from services.db.base import Base
 
@@ -11,8 +11,8 @@ class Connection(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     account_id = Column(Integer, nullable=False)
     website = Column(String(20), nullable=False)
-    access_token = Column(String(255), nullable=False)
-    refresh_token = Column(String(255), nullable=True)
+    access_token = Column(Text, nullable=False)
+    refresh_token = Column(Text, nullable=True)
 
     users = relationship(
         "User",

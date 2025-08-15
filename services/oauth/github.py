@@ -1,7 +1,9 @@
 import logging
 import os
 import requests
+from services.security.data import Data
 from fastapi import HTTPException, status
+from models.connection import Connection
 from services.oauth.oauth_interface import OauthInterface
 
 
@@ -47,8 +49,12 @@ class Github(OauthInterface):
                 detail="Something wrong happened, please try again later"
             ) from e
 
-    def get_user_info(self, access_token: str):
-        headers = {'Authorization': f'token {access_token}'}
+    def get_user_info(self, connection: Connection):
+        """
+        Get user data using the access token.
+        """
+        decrypted_token = Data().decrypt(connection.access_token)
+        headers = {'Authorization': f'token {decrypted_token}'}
         url = f"{self.url_user_info}/user"
         try:
             response = requests.get(url=url, headers=headers, timeout=10)
