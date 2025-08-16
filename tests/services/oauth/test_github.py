@@ -2,6 +2,7 @@ import pytest
 from unittest.mock import patch, MagicMock
 from fastapi import HTTPException
 import requests
+from models.connection import Connection
 from services.oauth.github import Github
 
 
@@ -30,22 +31,32 @@ def test_get_access_token_failure_raises_http_exception(mock_post, github_instan
 
 
 @patch("services.oauth.github.requests.get")
-def test_get_user_info_success(mock_get, github_instance):
+@patch("services.oauth.github.Data.decrypt", return_value="fake_token")
+def test_get_user_info_success(mock_decrypt, mock_get, github_instance):
     mock_response = MagicMock()
     mock_response.json.return_value = {"login": "testuser", "id": 123}
     mock_response.raise_for_status.return_value = None
     mock_get.return_value = mock_response
 
-    user_info = github_instance.get_user_info("fake_token", None)
+    fake_connection = Connection()
+    fake_connection.access_token = "fake_token"
+
+    user_info = github_instance.get_user_info(fake_connection)
     assert user_info["login"] == "testuser"
     mock_get.assert_called_once()
+    mock_decrypt.assert_called_once_with("fake_token")
 
 
 @patch("services.oauth.github.requests.get")
-def test_get_user_info_failure_raises_http_exception(mock_get, github_instance):
+@patch("services.oauth.github.Data.decrypt", return_value="fake_token")
+def test_get_user_info_failure_raises_http_exception(mock_decrypt, mock_get, github_instance):
     mock_get.side_effect = requests.exceptions.RequestException("Network error")
+
+    fake_connection = Connection()
+    fake_connection.access_token = "fake_token"
+
     with pytest.raises(HTTPException):
-        github_instance.get_user_info("fake_token", None)
+        github_instance.get_user_info(fake_connection)
 
 
 @patch("services.oauth.github.requests.get")

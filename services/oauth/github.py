@@ -1,10 +1,10 @@
 import logging
 import os
 import requests
-from services.security.data import Data
 from fastapi import HTTPException, status
-from models.connection import Connection
+from services.security.data import Data
 from services.oauth.oauth_interface import OauthInterface
+from models.connection import Connection
 
 
 class Github(OauthInterface):

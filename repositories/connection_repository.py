@@ -18,9 +18,6 @@ class ConnectionRepository:
         self.db_connection = DB()
         self.data = Data()
 
-    ##########
-    # Create #
-    ##########
     def create(self, user_id: int, website: str, access_token: str, account_id: int, refresh_token: str | None):
         """
         Create or link a connection for a user.
@@ -84,9 +81,6 @@ class ConnectionRepository:
                 detail="Internal server error."
             ) from e
 
-    ########
-    # Read #
-    ########
     def read(self, user_id: int):
         """
         Read all connections linked to a user.
@@ -114,7 +108,7 @@ class ConnectionRepository:
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail="Internal server error."
             ) from e
-        
+
     def get_by_encrypted_refresh(self, refresh_token: int):
         """
         Read a connection with a refresh_token.
@@ -140,10 +134,7 @@ class ConnectionRepository:
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail="Internal server error."
             ) from e
-        
-    ##########
-    # Update #
-    ##########
+
     def update_by_id(self, connection: Connection):
         """
         Update a connection by its ID.
@@ -196,10 +187,6 @@ class ConnectionRepository:
                 detail="Internal server error."
             ) from e
 
-
-    ##########
-    # Delete #
-    ##########
     def delete(self, user_id: int, account_id: int):
         """
         Delete a connection link for a user and possibly the connection itself.
@@ -253,20 +240,18 @@ class ConnectionRepository:
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail="Internal server error."
             ) from e
-        
-    def delete_by_id(self, id: str):
-        """
-        Delete a connection with a refresh_token.
 
-        :param refresh_token: refresh token of the account
-        :param website: website of the refresh token
+    def delete_by_id(self, _id: str):
+        """
+        Delete a connection with an id.
+        :param _id: id of the connection to delete
         :return: success message dict
         """
         try:
             with self.db_connection.get_connection() as session:
 
                 find_connection = select(Connection).filter_by(
-                    id=id
+                    id=_id
                 )
                 connection = session.execute(find_connection).scalar_one_or_none()
 

@@ -153,12 +153,10 @@ class Gitlab(OauthInterface):
 
                 return token_data["access_token"]
 
-            elif response.status_code == 400 and response.json().get("error") == "invalid_grant":
+            if response.status_code == 400 and response.json().get("error") == "invalid_grant":
                 conn_repo.delete_by_id(connection.id)
                 raise HTTPException(status_code=400, detail="Your GitLab connection has expired. Please reconnect to continue.")
-            else:
-                logging.error(f"Unexpected error refreshing token: {response.text}")
-                return None
+            return None
 
         except requests.exceptions.RequestException as e:
             logging.exception(e)
