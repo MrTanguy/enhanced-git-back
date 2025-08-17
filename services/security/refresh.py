@@ -8,15 +8,15 @@ from jwt import ExpiredSignatureError, InvalidTokenError, encode, decode
 
 
 class Refresh:
-    """Gestion de la génération et vérification des tokens refresh."""
+    """Handles Refresh token generation and verification."""
 
     def __init__(self) -> None:
         load_dotenv()
-        self.security_token = getenv("REFRESH_SECRET_TOKEN")
+        self.security_token = getenv("ENCRYPT_TOKEN")
         self.oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
 
     def generate(self, user_id: int):
-        """Génère un token refresh valide 7 jours."""
+        """Generate a Refresh token with 7 days expiration."""
         payload = {
             "id": user_id,
             "type": "refresh",
@@ -27,7 +27,7 @@ class Refresh:
         return token
 
     def verify(self, token: str):
-        """Vérifie et décode un token refresh. Retourne l'ID utilisateur."""
+        """Decode and verify a Refresh token."""
         try:
             payload = decode(token, self.security_token, algorithms=["HS256"])
             return payload["id"]

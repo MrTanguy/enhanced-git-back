@@ -33,7 +33,7 @@ def test_create_new_connection_and_link(repository, mock_db_session):
     mock_user.connections = []
     mock_db_session.execute.return_value.scalar_one_or_none.side_effect = [mock_user, None]  # user found, no connection
 
-    repository.create(user_id=1, website="gitlab", access_token="abc", account_id=42)
+    repository.create(user_id=1, website="gitlab", access_token="abc", account_id=42, refresh_token=None)
 
     assert mock_db_session.add.called
     assert mock_db_session.commit.call_count == 1
@@ -50,7 +50,7 @@ def test_create_existing_connection_and_link(repository, mock_db_session):
 
     mock_db_session.execute.return_value.scalar_one_or_none.side_effect = [mock_user, mock_connection, None]
 
-    repository.create(user_id=1, website="github", access_token="xyz", account_id=99)
+    repository.create(user_id=1, website="github", access_token="xyz", account_id=99, refresh_token=None)
 
     assert mock_db_session.commit.called
     assert mock_connection in mock_user.connections
@@ -66,7 +66,7 @@ def test_create_connection_already_linked(repository, mock_db_session):
     mock_db_session.execute.return_value.scalar_one_or_none.side_effect = [mock_user, mock_connection, mock_jointure]
 
     with pytest.raises(HTTPException) as exc:
-        repository.create(user_id=1, website="gitlab", access_token="abc", account_id=42)
+        repository.create(user_id=1, website="gitlab", access_token="abc", account_id=42, refresh_token=None)
 
     assert exc.value.status_code == status.HTTP_208_ALREADY_REPORTED
 
@@ -78,20 +78,43 @@ def test_create_connection_integrity_error(repository, mock_db_session):
     mock_db_session.commit.side_effect = IntegrityError("statement", "params", "orig")
 
     with pytest.raises(HTTPException) as exc:
-        repository.create(user_id=1, website="gitlab", access_token="abc", account_id=42)
+        repository.create(user_id=1, website="gitlab", access_token="abc", account_id=42, refresh_token=None)
 
     assert exc.value.status_code == status.HTTP_400_BAD_REQUEST
 
 
 def test_read_connections_for_user(repository, mock_db_session):
-    """Should return the user's connections."""
+    """Should return the user's connections with decrypted access tokens."""
+
+    # Création de mocks pour les connexions
+    mock_connection1 = MagicMock()
+    mock_connection1.access_token = "encrypted_token1"
+    mock_connection1.website = "github"
+    mock_connection1.account_id = 111
+
+    mock_connection2 = MagicMock()
+    mock_connection2.access_token = "encrypted_token2"
+    mock_connection2.website = "gitlab"
+    mock_connection2.account_id = 222
+
+    # Mock de l'utilisateur
     mock_user = MagicMock()
-    mock_user.connections = ["conn1", "conn2"]
+    mock_user.connections = [mock_connection1, mock_connection2]
     mock_db_session.execute.return_value.scalar_one_or_none.return_value = mock_user
 
-    result = repository.read(user_id=1)
+    # On patch la méthode decrypt pour renvoyer le token "clair"
+    with patch("services.security.data.Data.decrypt", side_effect=lambda x: x):
+        result = repository.read(user_id=1)
 
-    assert result == ["conn1", "conn2"]
+    # Vérifications
+    assert len(result) == 2
+    assert result[0].access_token == "encrypted_token1"
+    assert result[0].website == "github"
+    assert result[0].account_id == 111
+
+    assert result[1].access_token == "encrypted_token2"
+    assert result[1].website == "gitlab"
+    assert result[1].account_id == 222
 
 
 def test_delete_existing_connection_and_jointure(repository, mock_db_session):

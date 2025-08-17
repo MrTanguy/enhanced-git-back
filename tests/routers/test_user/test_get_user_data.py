@@ -58,7 +58,13 @@ def mock_get_user_data():
     with patch("repositories.user_repository.UserRepository.read_by_id", return_value=user_mock):
         yield
 
-def test_get_user_data_default_all(mock_bearer_verify, mock_get_user_data, mock_github_service):
+@pytest.fixture
+def mock_data_decrypt():
+    with patch("services.security.data.Data.decrypt", return_value="decrypted_token") as mock_decrypt:
+        yield mock_decrypt
+
+
+def test_get_user_data_default_all(mock_bearer_verify, mock_get_user_data, mock_github_service, mock_data_decrypt):
     headers = {"Authorization": f"Bearer {VALID_BEARER_TOKEN}"}
     response = client.get("/user/data", headers=headers)
 
@@ -75,13 +81,14 @@ def test_get_user_data_default_all(mock_bearer_verify, mock_get_user_data, mock_
     assert json_data["portfolios"][0]["uuid"] == "uuid123"
     assert json_data["portfolios"][0]["title"] == "My Portfolio"
 
-def test_get_user_data_only_connections(mock_bearer_verify, mock_github_service):
+def test_get_user_data_only_connections(mock_bearer_verify, mock_github_service, mock_data_decrypt):
     mock_connection = MagicMock()
     mock_connection.website = "github"
     mock_connection.account_id = 111
     mock_connection.access_token = "mocked_token"
 
     user_mock = make_mock_user(connections=[mock_connection], portfolios=[])
+
     with patch("repositories.user_repository.UserRepository.read_by_id", return_value=user_mock):
         headers = {"Authorization": f"Bearer {VALID_BEARER_TOKEN}"}
         response = client.get("/user/data?types=connections", headers=headers)

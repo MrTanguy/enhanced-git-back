@@ -1,4 +1,5 @@
 import logging
+
 from typing import Optional, Annotated
 from dotenv import load_dotenv
 from fastapi import APIRouter, HTTPException, Depends, status, Query
@@ -41,11 +42,21 @@ async def get_user_data(
 
         if "connections" in arguments:
             result["connections"] = []
+            result["errors"] = []
             for connection in user_data.connections:
                 service = init_website_service(website=connection.website)
-                user_info = service.get_user_info(access_token=connection.access_token)
-                username = user_info['login']
+                try:
+                    user_info = service.get_user_info(connection=connection)
+                except HTTPException as e:
+                    result["errors"].append(e.detail)
+                    continue
 
+                if connection.website == "github":
+                    username = user_info['login']
+                elif connection.website == "gitlab":
+                    username = user_info['username']
+                else:
+                    raise ValueError(f"Unable to find the website : {connection.website}")
 
                 result["connections"].append({
                     "website": connection.website,

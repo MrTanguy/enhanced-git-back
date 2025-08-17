@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
 
+from models.connection import Connection
+
 
 class OauthInterface(ABC):
     """Abstract base class for OAuth provider implementations."""
@@ -13,7 +15,7 @@ class OauthInterface(ABC):
         """Called after the callback, get the access token from the callback code."""
 
     @abstractmethod
-    def get_user_info(self, access_token: str):
+    def get_user_info(self, connection: Connection):
         """Get user data using the access token."""
 
     @abstractmethod

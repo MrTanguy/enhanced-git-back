@@ -1,6 +1,7 @@
 import pytest
 from fastapi import HTTPException
 from services.oauth.github import Github
+from services.oauth.gitlab import Gitlab
 from utils.utils import is_username_valid, is_password_valid, init_website_service 
 
 def test_is_username_valid():
@@ -23,8 +24,12 @@ def test_init_website_service_github():
     service = init_website_service("github")
     assert isinstance(service, Github)
 
+def test_init_website_service_gitlab():
+    service = init_website_service("gitlab")
+    assert isinstance(service, Gitlab)
+
 def test_init_website_service_unsupported():
     with pytest.raises(HTTPException) as excinfo:
-        init_website_service("gitlab")
+        init_website_service("unsupported")
     assert excinfo.value.status_code == 400
     assert "not supported" in excinfo.value.detail.lower()

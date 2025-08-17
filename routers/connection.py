@@ -4,8 +4,10 @@ from typing import Annotated
 from dotenv import load_dotenv
 from fastapi import APIRouter, HTTPException, Depends, status, Form
 
+from models.connection import Connection
 from repositories.connection_repository import ConnectionRepository
 from services.security.bearer import Bearer
+from services.security.data import Data
 from utils.utils import init_website_service
 
 connection_router = APIRouter()
@@ -46,16 +48,29 @@ async def connect_with_token(
     """
     try:
         service = init_website_service(website=website)
-        access_token = service.get_access_token(code=code)
+        data = service.get_access_token(code=code)
 
-        user_info = service.get_user_info(access_token=access_token)
+        security = Data()
+        access_token = data['access_token']
+        if website == 'gitlab':
+            refresh_token = data['refresh_token']
+        else:
+            refresh_token = None
+
+        # On crée une fausse connection le temps de récupérer les informations
+        new_connection = Connection()
+        new_connection.access_token = security.encrypt(access_token)
+        new_connection.refresh_token = security.encrypt(refresh_token)
+
+        user_info = service.get_user_info(new_connection)
         account_id = user_info["id"]
 
         ConnectionRepository().create(
             user_id=user_id,
             website=website,
             access_token=access_token,
-            account_id=account_id
+            account_id=account_id,
+            refresh_token=refresh_token
         )
 
         return {"message": "Successfully connected."}
