@@ -98,4 +98,10 @@ pylint .
 ```
 You can configure rules using a .pylintrc file.
 
+### ⚡ Audit 
 
+To check the security of dependances :
+
+```
+pip-audit --strict
+```
