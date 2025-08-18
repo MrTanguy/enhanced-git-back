@@ -20,6 +20,25 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [1.0.0] - 19-08-2025
+
+### Added
+- Continuous Integration (CI) and Continuous Deployment (CD) pipeline.
+- New deployment files: `Dockerfile.[preprod/prod]` and `docker-compose.[preprod/prod].yml`.
+- Full integration of `gitlab.py` module for GitLab API connections and requests.
+- Unit tests covering GitLab-related functionalities.
+
+### Changed
+- Database adjustments to support new features (migrations and minor schema updates).
+- OAuth connection now includes **scope verification** for enhanced permission control.
+- Improved token security with stronger encryption mechanisms.
+
+### Fixed
+- Issues with GitLab OAuth token refresh reliability.
+- Minor fixes in Docker configuration and Traefik compatibility.
+
+---
+
 ## [0.5.0] - 30-07-2025
 
 ### Added 
