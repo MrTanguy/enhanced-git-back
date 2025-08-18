@@ -147,7 +147,5 @@ def test_get_all_projects_init_service_error(
             headers={"Authorization": f"Bearer {VALID_BEARER_TOKEN}"}
         )
 
-    print(response.json())
-
     assert response.status_code == 400
     assert response.json()["detail"] == "Invalid website"

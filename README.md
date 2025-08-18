@@ -28,11 +28,15 @@ BDD_HOST=""
 BDD_PORT=
 BDD_NAME=""
 
-BEARER_SECRET_TOKEN=""
-REFRESH_SECRET_TOKEN=""
+ENCRYPT_TOKEN=""
+ENCRYPT_DATA=""
 
 GITHUB_CLIENT=""
 GITHUB_CLIENT_SECRET=""
+
+GITLAB_CLIENT=""
+GITLAB_CLIENT_SECRET=""
+GITLAB_REDIRECT_URL=""
 
 FRONT_URL=""
 ```
@@ -94,4 +98,10 @@ pylint .
 ```
 You can configure rules using a .pylintrc file.
 
+### ⚡ Audit 
 
+To check the security of dependances :
+
+```
+pip-audit --strict
+```

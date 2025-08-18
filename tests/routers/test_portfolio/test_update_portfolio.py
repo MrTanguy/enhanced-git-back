@@ -114,8 +114,6 @@ def test_update_portfolio_http_exception_propagation(mock_bearer_verify, mock_po
     headers = {"Authorization": f"Bearer {VALID_BEARER_TOKEN}"}
     response = client.patch(f"/portfolio/{VALID_UUID}", json=update_data, headers=headers)
 
-    print(response.json())
-
     assert response.status_code == 422
     assert response.json()["detail"] == "Invalid data"
 

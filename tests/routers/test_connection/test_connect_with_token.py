@@ -40,10 +40,11 @@ def mock_init_website_service():
     """Mock de init_website_service() pour simuler le service OAuth."""
     with patch("routers.connection.init_website_service") as mock_init:
         mock_service = MagicMock(spec=Github)
-        mock_service.get_access_token.return_value = MOCK_ACCESS_TOKEN
+        mock_service.get_access_token.return_value = {"access_token": MOCK_ACCESS_TOKEN}
         mock_service.get_user_info.return_value = {"id": VALID_ACCOUNT_ID}
         mock_init.return_value = mock_service
         yield mock_init
+
 
 
 @pytest.fixture
@@ -53,7 +54,13 @@ def mock_ConnectionRepository():
         yield mock_create
 
 
-def test_connect_with_token_success(mock_bearer_verify, mock_init_website_service, mock_ConnectionRepository):
+@pytest.fixture
+def mock_data_decrypt():
+    with patch("services.security.data.Data.decrypt", return_value="decrypted_token") as mock_decrypt:
+        yield mock_decrypt
+
+
+def test_connect_with_token_success(mock_bearer_verify, mock_init_website_service, mock_ConnectionRepository, mock_data_decrypt):
     response = client.post(
         "/connect/token",
         headers={"Authorization": f"Bearer {VALID_BEARER_TOKEN}"},

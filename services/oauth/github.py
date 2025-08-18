@@ -2,7 +2,9 @@ import logging
 import os
 import requests
 from fastapi import HTTPException, status
+from services.security.data import Data
 from services.oauth.oauth_interface import OauthInterface
+from models.connection import Connection
 
 
 class Github(OauthInterface):
@@ -17,7 +19,6 @@ class Github(OauthInterface):
 
         # Manage access_token
         self.url_get_access_token = "https://github.com/login/oauth/access_token"
-        self.url_delete_access_token = f"https://api.github.com/applications/{self.__client_id}/token"
 
     def get_oauth_url(self) -> str:
         return self.url_oauth
@@ -37,8 +38,10 @@ class Github(OauthInterface):
             response = requests.post(self.url_get_access_token, data=payload, headers=headers, timeout=10)
             response.raise_for_status()
             data = response.json()
-            return data['access_token']
-
+            # {'access_token': '...', 'token_type': 'bearer', 'scope': 'read:user'}
+            if data['scope'] == 'read:user':
+                return data
+            raise Exception('Invalid scope')
         except Exception as e:
             logging.exception(e)
             raise HTTPException(
@@ -46,8 +49,12 @@ class Github(OauthInterface):
                 detail="Something wrong happened, please try again later"
             ) from e
 
-    def get_user_info(self, access_token: str):
-        headers = {'Authorization': f'token {access_token}'}
+    def get_user_info(self, connection: Connection):
+        """
+        Get user data using the access token.
+        """
+        decrypted_token = Data().decrypt(connection.access_token)
+        headers = {'Authorization': f'token {decrypted_token}'}
         url = f"{self.url_user_info}/user"
         try:
             response = requests.get(url=url, headers=headers, timeout=10)
