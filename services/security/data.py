@@ -23,4 +23,3 @@ class Data:
         if data:
             return self.cipher_suite.decrypt(data.encode()).decode()
         return None
-        
