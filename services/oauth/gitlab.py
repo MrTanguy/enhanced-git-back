@@ -147,8 +147,8 @@ class Gitlab(OauthInterface):
                 token_data = response.json()
                 connection = conn_repo.get_by_encrypted_refresh(connection.refresh_token)
                 if connection:
-                    connection.access_token =  data_security.encrypt(token_data["access_token"])
-                    connection.refresh_token = data_security.encrypt(token_data["refresh_token"])
+                    connection.access_token =  token_data["access_token"]
+                    connection.refresh_token = token_data["refresh_token"]
                     conn_repo.update_by_id(connection)
 
                 return token_data["access_token"]

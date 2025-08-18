@@ -1,4 +1,4 @@
-name: CI | Connect - deplay.sh 
+name: CD | Connect - deploy.sh 
 
 on:
   push:
