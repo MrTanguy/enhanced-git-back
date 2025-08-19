@@ -27,6 +27,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - New deployment files: `Dockerfile.[preprod/prod]` and `docker-compose.[preprod/prod].yml`.
 - Full integration of `gitlab.py` module for GitLab API connections and requests.
 - Unit tests covering GitLab-related functionalities.
+- A liveness and logless route `/heath`
 
 ### Changed
 - Database adjustments to support new features (migrations and minor schema updates).
