@@ -34,7 +34,7 @@ services:
         loki-url: "http://localhost:3100/loki/api/v1/push"
         loki-batch-size: "400"
         loki-retries: "5"
-        loki-external-labels: "app=preprod-api"
+        loki-external-labels: "app=preprod-db"
 
   api:
     restart: always
