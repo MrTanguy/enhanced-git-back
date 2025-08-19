@@ -22,11 +22,11 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
             cd ~/enhanced-git
-            if [ "$GITHUB_REF" = "prod" ]; then
+            if [ "${{ github.ref }}" = "prod" ]; then
               ./deploy-back.sh prod
-            elif [ "$GITHUB_REF" = "preprod" ]; then
+            elif [ "${{ github.ref }}" = "preprod" ]; then
               ./deploy-back.sh preprod
             else
-              echo "Branche non reconnue : $GITHUB_REF"
+              echo "Branche non reconnue : ${{ github.ref }}"
               exit 1
             fi
