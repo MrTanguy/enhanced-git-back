@@ -22,6 +22,7 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
             cd ~/enhanced-git
+            echo ${GITHUB_REF_NAME}
             if [ "${GITHUB_REF_NAME}" = "prod" ]; then
               ./deploy-back.sh prod
             elif [ "${GITHUB_REF_NAME}" = "preprod" ]; then
