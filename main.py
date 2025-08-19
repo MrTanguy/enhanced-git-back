@@ -7,6 +7,7 @@ import logging
 import os
 
 from fastapi import FastAPI
+from fastapi.responses import PlainTextResponse
 from fastapi.security import OAuth2PasswordBearer
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -14,7 +15,7 @@ from routers.auth import auth_router
 from routers.connection import connection_router
 from routers.user import user_router
 from routers.portfolio import portfolio_router
-# from services.db.db import DB  # Removed because unused
+from services.log.health_filter import HealthFilter
 
 app = FastAPI()
 
@@ -37,8 +38,14 @@ app.include_router(router=portfolio_router, prefix="/portfolio")
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 logging.basicConfig(level=logging.INFO)
+logging.getLogger("uvicorn.access").addFilter(HealthFilter())
 
 @app.get('/')
 def hello():
     """Root endpoint that returns a welcome message."""
     return {"message": "Welcome to the Enhanced-git API"}
+
+@app.get("/health", include_in_schema=False)
+def health():
+    """Health check endpoint (no logging)."""
+    return PlainTextResponse("OK")
